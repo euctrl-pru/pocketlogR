@@ -14,6 +14,7 @@ pl_create_flow(
   owner,
   description = NULL,
   schedule = NULL,
+  metadata = NULL,
   depends_on = NULL
 )
 ```
@@ -47,6 +48,11 @@ pl_create_flow(
 - schedule:
 
   Optional cron expression or human-readable schedule string.
+
+- metadata:
+
+  Optional named list of arbitrary data, serialised to JSON (e.g.
+  `list(url = "https://...", region = "EU")`).
 
 - depends_on:
 

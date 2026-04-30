@@ -49,6 +49,7 @@ them would not create a cycle in the DAG.</p>
 <span>  <span class="va">owner</span>,</span>
 <span>  description <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  schedule <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  depends_on <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -79,6 +80,10 @@ them would not create a cycle in the DAG.</p>
 
 <dt id="arg-schedule">schedule<a class="anchor" aria-label="anchor" href="#arg-schedule"></a></dt>
 <dd><p>Optional cron expression or human-readable schedule string.</p></dd>
+
+
+<dt id="arg-metadata">metadata<a class="anchor" aria-label="anchor" href="#arg-metadata"></a></dt>
+<dd><p>Optional named list of arbitrary data, serialised to JSON (e.g. <code>list(url = "https://...", region = "EU")</code>).</p></dd>
 
 
 <dt id="arg-depends-on">depends_on<a class="anchor" aria-label="anchor" href="#arg-depends-on"></a></dt>
