@@ -10,6 +10,7 @@
 #' @param description Optional human-readable description.
 #' @param schedule Optional cron expression or human-readable schedule string.
 #' @param owner Free-text owner or responsible party (e.g. `"quinten"`, `"team-data"`).
+#' @param metadata Optional named list of arbitrary data, serialised to JSON (e.g. `list(url = "https://...", region = "EU")`).
 #' @param depends_on Optional character vector of upstream flow names.
 #'
 #' @return Invisibly returns the created flow record as a list.
@@ -22,7 +23,7 @@
 #'                schedule = "0 6 * * *")
 #' }
 #' @export
-pl_create_flow <- function(conn, name, type, owner, description = NULL, schedule = NULL, depends_on = NULL) {
+pl_create_flow <- function(conn, name, type, owner, description = NULL, schedule = NULL, metadata = NULL, depends_on = NULL) {
   pl_validate_conn(conn)
 
   if (!is.character(name) || length(name) != 1 || nchar(name) == 0)
@@ -54,6 +55,7 @@ pl_create_flow <- function(conn, name, type, owner, description = NULL, schedule
     description = description,
     schedule    = schedule,
     owner       = owner,
+    metadata    = if (!is.null(metadata)) jsonlite::toJSON(metadata, auto_unbox = TRUE) else NULL,
     depends_on  = as.list(unname(dep_ids))
   )
   body <- Filter(Negate(is.null), body)
@@ -77,7 +79,8 @@ pl_create_flow <- function(conn, name, type, owner, description = NULL, schedule
 #' @param name Optional flow name to filter by.
 #'
 #' @return A data.frame with columns: `id`, `name`, `type`, `description`,
-#'   `schedule`, `owner`, `depends_on` (list-column of upstream flow names), `created`, `updated`.
+#'   `schedule`, `owner`, `metadata` (list-column), `depends_on` (list-column of upstream flow names),
+#'   `created`, `updated`.
 #'
 #' @examples
 #' \dontrun{
@@ -116,7 +119,8 @@ pl_get_flows <- function(conn, type = NULL, name = NULL) {
     return(data.frame(
       id = character(0), name = character(0), type = character(0),
       description = character(0), schedule = character(0), owner = character(0),
-      depends_on = I(list()), created = character(0), updated = character(0),
+      metadata = I(list()), depends_on = I(list()),
+      created = character(0), updated = character(0),
       stringsAsFactors = FALSE
     ))
   }
@@ -137,6 +141,7 @@ pl_get_flows <- function(conn, type = NULL, name = NULL) {
       description = item$description %||% NA_character_,
       schedule    = item$schedule %||% NA_character_,
       owner       = item$owner %||% NA_character_,
+      metadata    = list(item$metadata),
       depends_on  = list(dep_names),
       created     = item$created %||% NA_character_,
       updated     = item$updated %||% NA_character_
@@ -150,6 +155,7 @@ pl_get_flows <- function(conn, type = NULL, name = NULL) {
     description = vapply(rows, `[[`, character(1), "description"),
     schedule    = vapply(rows, `[[`, character(1), "schedule"),
     owner       = vapply(rows, `[[`, character(1), "owner"),
+    metadata    = I(lapply(rows, function(r) r$metadata[[1]])),
     depends_on  = I(lapply(rows, function(r) r$depends_on[[1]])),
     created     = vapply(rows, `[[`, character(1), "created"),
     updated     = vapply(rows, `[[`, character(1), "updated"),

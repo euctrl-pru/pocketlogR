@@ -11,6 +11,7 @@ pl_create_flow(
   owner,
   description = NULL,
   schedule = NULL,
+  metadata = NULL,
   depends_on = NULL
 )
 }
@@ -26,6 +27,8 @@ pl_create_flow(
 \item{description}{Optional human-readable description.}
 
 \item{schedule}{Optional cron expression or human-readable schedule string.}
+
+\item{metadata}{Optional named list of arbitrary data, serialised to JSON (e.g. \code{list(url = "https://...", region = "EU")}).}
 
 \item{depends_on}{Optional character vector of upstream flow names.}
 }
