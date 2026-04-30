@@ -57,7 +57,8 @@ pl_setup <- function(conn) {
       list(name = "name",        type = "text", required = TRUE),
       list(name = "description", type = "text", required = FALSE),
       list(name = "type",        type = "text", required = TRUE),
-      list(name = "schedule",    type = "text", required = FALSE)
+      list(name = "schedule",    type = "text", required = FALSE),
+      list(name = "owner",       type = "text", required = TRUE)
     ),
     listRule   = "@request.auth.id != \"\"",
     viewRule   = "@request.auth.id != \"\"",

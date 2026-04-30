@@ -67,6 +67,7 @@ conn <- pl_connect()
 pl_create_flow(conn,
                name        = "my_flow_name",
                type        = "data_job",       # see Flow Types below
+               owner       = "quinten",        # required: person or team responsible
                description = "What this does",
                schedule    = "0 6 * * *")      # optional cron
 ```
@@ -168,6 +169,7 @@ When adding this to a project's `CLAUDE.md`, append a section like:
 
 - Flow name: `"<flow_name>"` (already registered — do not call pl_create_flow)
 - Type: `"<type>"`
+- Owner: `"<owner>"`
 - Schedule: `"<cron or description>"`
 - Depends on: `c("<upstream_flow>")` (or none)
 - Log success at the end of the main execution block

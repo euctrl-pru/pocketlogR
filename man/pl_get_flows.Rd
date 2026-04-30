@@ -15,7 +15,7 @@ pl_get_flows(conn, type = NULL, name = NULL)
 }
 \value{
 A data.frame with columns: \code{id}, \code{name}, \code{type}, \code{description},
-\code{schedule}, \code{depends_on} (list-column of upstream flow names), \code{created}, \code{updated}.
+\code{schedule}, \code{owner}, \code{depends_on} (list-column of upstream flow names), \code{created}, \code{updated}.
 }
 \description{
 Returns a data.frame of flows, optionally filtered by type or name.

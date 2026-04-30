@@ -8,6 +8,7 @@ pl_create_flow(
   conn,
   name,
   type,
+  owner,
   description = NULL,
   schedule = NULL,
   depends_on = NULL
@@ -19,6 +20,8 @@ pl_create_flow(
 \item{name}{Unique flow identifier (e.g. \code{"ectrl_data_load"}).}
 
 \item{type}{Flow type string. See \link{pl_flow_types} for defaults, but any string is accepted.}
+
+\item{owner}{Free-text owner or responsible party (e.g. \code{"quinten"}, \code{"team-data"}).}
 
 \item{description}{Optional human-readable description.}
 
@@ -37,7 +40,7 @@ them would not create a cycle in the DAG.
 \examples{
 \dontrun{
 conn <- pl_connect()
-pl_create_flow(conn, "ectrl_data_load", type = "data_job",
+pl_create_flow(conn, "ectrl_data_load", type = "data_job", owner = "quinten",
                description = "Daily EUROCONTROL data import",
                schedule = "0 6 * * *")
 }
