@@ -147,7 +147,7 @@ setx POCKETLOG_PASSWORD "your-password"
 
 ```r
 # install.packages("devtools")
-devtools::install_github("your-org/pocketlogR")
+devtools::install_github("euctrl-pru/pocketlogR")
 ```
 
 ---
@@ -366,7 +366,7 @@ Integration tests are skipped automatically when these variables are absent, so 
 
 Full function reference and articles are published as a pkgdown site on GitHub Pages:
 
-> **https://quintengoens.github.io/pocketlogR**
+> **https://euctrl-pru.github.io/pocketlogR**
 
 To build the docs locally:
 

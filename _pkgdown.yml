@@ -1,4 +1,4 @@
-url: https://your-org.github.io/pocketlogR
+url: https://euctrl-pru.github.io/pocketlogR
 
 template:
   bootstrap: 5
@@ -14,7 +14,7 @@ navbar:
   components:
     github:
       icon: fab fa-github
-      href: https://github.com/your-org/pocketlogR
+      href: https://github.com/euctrl-pru/pocketlogR
 
 reference:
   - title: Connection

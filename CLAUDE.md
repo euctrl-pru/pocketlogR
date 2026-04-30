@@ -320,7 +320,7 @@ pocketlogR/
 
 Documentation is generated with **pkgdown** and hosted on GitHub Pages.
 
-- **Site URL:** `https://quintengoens.github.io/pocketlogR`
+- **Site URL:** `https://euctrl-pru.github.io/pocketlogR`
 - **Config file:** `_pkgdown.yml` — Bootstrap 5 template, reference sections organised by function group.
 - **Build locally:**
   ```r
@@ -461,7 +461,7 @@ POCKETLOG_PASSWORD=your-password
 
 ```r
 # install.packages("devtools")
-devtools::install_github("your-org/pocketlogR")
+devtools::install_github("euctrl-pru/pocketlogR")
 ```
 
 ### 6. Quick Start
