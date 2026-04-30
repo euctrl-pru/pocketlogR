@@ -5,7 +5,8 @@ Authors@R:
     person("Quinten", "Goens", email = "qgoens@gmail.com", role = c("aut", "cre"))
 Description: A unified operational monitoring system that logs application events
     (data jobs, website monitoring, email checks, database checks, etc.) to a
-    PocketBase instance. Supports DAG-based flow dependencies with cascade health
+    PocketBase instance. Flows carry owner, description, schedule, and arbitrary
+    JSON metadata. Supports DAG-based flow dependencies with cascade health
     checks and two authentication modes (regular user and superuser).
 License: MIT + file LICENSE
 Encoding: UTF-8
