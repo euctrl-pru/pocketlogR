@@ -26,7 +26,7 @@ pl_get_flows(conn, type = NULL, name = NULL)
 ## Value
 
 A data.frame with columns: `id`, `name`, `type`, `description`,
-`schedule`, `depends_on` (list-column of upstream flow names),
+`schedule`, `owner`, `depends_on` (list-column of upstream flow names),
 `created`, `updated`.
 
 ## Examples

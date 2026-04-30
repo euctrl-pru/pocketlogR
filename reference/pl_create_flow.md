@@ -11,6 +11,7 @@ pl_create_flow(
   conn,
   name,
   type,
+  owner,
   description = NULL,
   schedule = NULL,
   depends_on = NULL
@@ -34,6 +35,11 @@ pl_create_flow(
   [pl_flow_types](https://euctrl-pru.github.io/pocketlogR/reference/pl_flow_types.md)
   for defaults, but any string is accepted.
 
+- owner:
+
+  Free-text owner or responsible party (e.g. `"quinten"`,
+  `"team-data"`).
+
 - description:
 
   Optional human-readable description.
@@ -55,7 +61,7 @@ Invisibly returns the created flow record as a list.
 ``` r
 if (FALSE) { # \dontrun{
 conn <- pl_connect()
-pl_create_flow(conn, "ectrl_data_load", type = "data_job",
+pl_create_flow(conn, "ectrl_data_load", type = "data_job", owner = "quinten",
                description = "Daily EUROCONTROL data import",
                schedule = "0 6 * * *")
 } # }

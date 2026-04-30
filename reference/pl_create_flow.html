@@ -46,6 +46,7 @@ them would not create a cycle in the DAG.</p>
 <span>  <span class="va">conn</span>,</span>
 <span>  <span class="va">name</span>,</span>
 <span>  <span class="va">type</span>,</span>
+<span>  <span class="va">owner</span>,</span>
 <span>  description <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  schedule <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  depends_on <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -66,6 +67,10 @@ them would not create a cycle in the DAG.</p>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Flow type string. See <a href="pl_flow_types.html">pl_flow_types</a> for defaults, but any string is accepted.</p></dd>
+
+
+<dt id="arg-owner">owner<a class="anchor" aria-label="anchor" href="#arg-owner"></a></dt>
+<dd><p>Free-text owner or responsible party (e.g. <code>"quinten"</code>, <code>"team-data"</code>).</p></dd>
 
 
 <dt id="arg-description">description<a class="anchor" aria-label="anchor" href="#arg-description"></a></dt>
@@ -89,7 +94,7 @@ them would not create a cycle in the DAG.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">conn</span> <span class="op">&lt;-</span> <span class="fu"><a href="pl_connect.html">pl_connect</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">pl_create_flow</span><span class="op">(</span><span class="va">conn</span>, <span class="st">"ectrl_data_load"</span>, type <span class="op">=</span> <span class="st">"data_job"</span>,</span></span>
+<span class="r-in"><span><span class="fu">pl_create_flow</span><span class="op">(</span><span class="va">conn</span>, <span class="st">"ectrl_data_load"</span>, type <span class="op">=</span> <span class="st">"data_job"</span>, owner <span class="op">=</span> <span class="st">"quinten"</span>,</span></span>
 <span class="r-in"><span>               description <span class="op">=</span> <span class="st">"Daily EUROCONTROL data import"</span>,</span></span>
 <span class="r-in"><span>               schedule <span class="op">=</span> <span class="st">"0 6 * * *"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
