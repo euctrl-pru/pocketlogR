@@ -1,0 +1,73 @@
+url: https://your-org.github.io/pocketlogR
+
+template:
+  bootstrap: 5
+
+home:
+  title: pocketlogR
+  description: Log application events to PocketBase from R
+
+navbar:
+  structure:
+    left:  [intro, reference, articles]
+    right: [github]
+  components:
+    github:
+      icon: fab fa-github
+      href: https://github.com/your-org/pocketlogR
+
+reference:
+  - title: Connection
+    desc: Establish a connection to PocketBase.
+    contents:
+      - pl_connect
+      - pl_connect_admin
+
+  - title: Setup
+    desc: One-time admin setup of PocketBase collections.
+    contents:
+      - pl_setup
+
+  - title: Flows
+    desc: Register and query monitored processes.
+    contents:
+      - pl_create_flow
+      - pl_get_flows
+
+  - title: Dependencies
+    desc: Manage DAG-based upstream dependencies between flows.
+    contents:
+      - pl_add_dependency
+      - pl_remove_dependency
+      - pl_get_dependencies
+
+  - title: Status & DAG
+    desc: Inspect health across the dependency graph.
+    contents:
+      - pl_get_status
+      - pl_get_dag
+
+  - title: Logging
+    desc: Write log entries from your scripts and pipelines.
+    contents:
+      - pl_log
+      - pl_success
+      - pl_error
+      - pl_fatal
+
+  - title: Querying
+    desc: Read log entries back for reporting or alerting.
+    contents:
+      - pl_get_logs
+
+  - title: Admin Operations
+    desc: >
+      Superuser-only maintenance functions. Require a connection from
+      `pl_connect_admin()`.
+    contents:
+      - pl_delete_flow
+      - pl_delete_logs
+
+  - title: Constants
+    contents:
+      - pl_flow_types
