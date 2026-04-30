@@ -2,7 +2,7 @@
 
 Creates the `pl_flows` and `pl_logs` collections with the correct schema
 and API rules. Requires a superuser connection from
-[`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md).
+[`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md).
 This function is idempotent — safe to call multiple times.
 
 ## Usage
@@ -16,7 +16,7 @@ pl_setup(conn)
 - conn:
 
   A superuser connection object from
-  [`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md).
+  [`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md).
 
 ## Value
 

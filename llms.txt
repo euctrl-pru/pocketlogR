@@ -61,7 +61,7 @@ superuser. Create a dedicated service account:
 ### Step 3 — Run initial setup from R
 
 Install the package (see [Installation](#installation)) and run
-[`pl_setup()`](https://your-org.github.io/pocketlogR/reference/pl_setup.md)
+[`pl_setup()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_setup.md)
 with your superuser credentials. This creates the `pl_flows` and
 `pl_logs` collections with the correct schema and API rules.
 
@@ -77,7 +77,7 @@ conn_admin <- pl_connect_admin(
 pl_setup(conn_admin)
 ```
 
-[`pl_setup()`](https://your-org.github.io/pocketlogR/reference/pl_setup.md)
+[`pl_setup()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_setup.md)
 is idempotent — safe to run multiple times.
 
 ### Step 4 — Verify (optional)
@@ -168,7 +168,7 @@ setx POCKETLOG_PASSWORD "your-password"
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("your-org/pocketlogR")
+devtools::install_github("euctrl-pru/pocketlogR")
 ```
 
 ------------------------------------------------------------------------
@@ -245,7 +245,7 @@ pl_add_dependency(conn, "ans_data_freshness", "another_upstream")
 pl_remove_dependency(conn, "ans_data_freshness", "another_upstream")
 ```
 
-[`pl_get_status()`](https://your-org.github.io/pocketlogR/reference/pl_get_status.md)
+[`pl_get_status()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_status.md)
 walks the full upstream chain and returns the latest log status for each
 flow:
 
@@ -259,7 +259,7 @@ pl_get_status(conn, "ans_monthly_update")
 #>   data_services_email    email_check SUCCESS     2
 ```
 
-[`pl_get_dag()`](https://your-org.github.io/pocketlogR/reference/pl_get_dag.md)
+[`pl_get_dag()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_dag.md)
 returns the full picture across all flows, including cascade
 (“poisoned”) status — a flow is marked `POISONED` if it ran successfully
 *after* an upstream failure, meaning its last result is stale:
@@ -283,31 +283,31 @@ upstream status.
 
 ### Daily use (regular user connection)
 
-| Function                                                                                            | Description                                                   |
-|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
-| [`pl_connect()`](https://your-org.github.io/pocketlogR/reference/pl_connect.md)                     | Connect as a regular user                                     |
-| [`pl_create_flow()`](https://your-org.github.io/pocketlogR/reference/pl_create_flow.md)             | Register a new flow                                           |
-| [`pl_get_flows()`](https://your-org.github.io/pocketlogR/reference/pl_get_flows.md)                 | List flows, optionally filtered by name or type               |
-| [`pl_add_dependency()`](https://your-org.github.io/pocketlogR/reference/pl_add_dependency.md)       | Add upstream dependencies to an existing flow                 |
-| [`pl_remove_dependency()`](https://your-org.github.io/pocketlogR/reference/pl_remove_dependency.md) | Remove upstream dependencies from an existing flow            |
-| [`pl_get_dependencies()`](https://your-org.github.io/pocketlogR/reference/pl_get_dependencies.md)   | List direct or transitive upstream dependencies               |
-| [`pl_get_status()`](https://your-org.github.io/pocketlogR/reference/pl_get_status.md)               | Full dependency chain health for a single flow                |
-| [`pl_get_dag()`](https://your-org.github.io/pocketlogR/reference/pl_get_dag.md)                     | Full DAG overview with raw and cascade-aware effective status |
-| [`pl_log()`](https://your-org.github.io/pocketlogR/reference/pl_log.md)                             | Log an event (`SUCCESS`, `ERROR`, or `FATAL`)                 |
-| [`pl_success()`](https://your-org.github.io/pocketlogR/reference/pl_success.md)                     | Shorthand for `pl_log(..., status = "SUCCESS")`               |
-| [`pl_error()`](https://your-org.github.io/pocketlogR/reference/pl_error.md)                         | Shorthand for `pl_log(..., status = "ERROR")`                 |
-| [`pl_fatal()`](https://your-org.github.io/pocketlogR/reference/pl_fatal.md)                         | Shorthand for `pl_log(..., status = "FATAL")`                 |
-| [`pl_get_logs()`](https://your-org.github.io/pocketlogR/reference/pl_get_logs.md)                   | Query log entries with optional filters                       |
-| `pl_flow_types`                                                                                     | Character vector of the five default flow type strings        |
+| Function                                                                                              | Description                                                   |
+|-------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| [`pl_connect()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect.md)                     | Connect as a regular user                                     |
+| [`pl_create_flow()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_create_flow.md)             | Register a new flow                                           |
+| [`pl_get_flows()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_flows.md)                 | List flows, optionally filtered by name or type               |
+| [`pl_add_dependency()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_add_dependency.md)       | Add upstream dependencies to an existing flow                 |
+| [`pl_remove_dependency()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_remove_dependency.md) | Remove upstream dependencies from an existing flow            |
+| [`pl_get_dependencies()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_dependencies.md)   | List direct or transitive upstream dependencies               |
+| [`pl_get_status()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_status.md)               | Full dependency chain health for a single flow                |
+| [`pl_get_dag()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_dag.md)                     | Full DAG overview with raw and cascade-aware effective status |
+| [`pl_log()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_log.md)                             | Log an event (`SUCCESS`, `ERROR`, or `FATAL`)                 |
+| [`pl_success()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_success.md)                     | Shorthand for `pl_log(..., status = "SUCCESS")`               |
+| [`pl_error()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_error.md)                         | Shorthand for `pl_log(..., status = "ERROR")`                 |
+| [`pl_fatal()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_fatal.md)                         | Shorthand for `pl_log(..., status = "FATAL")`                 |
+| [`pl_get_logs()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_logs.md)                   | Query log entries with optional filters                       |
+| `pl_flow_types`                                                                                       | Character vector of the five default flow type strings        |
 
 ### Admin only (superuser connection)
 
-| Function                                                                                    | Description                                                      |
-|---------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-| [`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md) | Connect as a superuser                                           |
-| [`pl_setup()`](https://your-org.github.io/pocketlogR/reference/pl_setup.md)                 | Create collections and API rules (one-time)                      |
-| [`pl_delete_flow()`](https://your-org.github.io/pocketlogR/reference/pl_delete_flow.md)     | Delete a flow by name, optionally force-deleting its logs first  |
-| [`pl_delete_logs()`](https://your-org.github.io/pocketlogR/reference/pl_delete_logs.md)     | Delete log entries, optionally filtered by flow, status, or date |
+| Function                                                                                      | Description                                                      |
+|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| [`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md) | Connect as a superuser                                           |
+| [`pl_setup()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_setup.md)                 | Create collections and API rules (one-time)                      |
+| [`pl_delete_flow()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_delete_flow.md)     | Delete a flow by name, optionally force-deleting its logs first  |
+| [`pl_delete_logs()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_delete_logs.md)     | Delete log entries, optionally filtered by flow, status, or date |
 
 ------------------------------------------------------------------------
 
@@ -329,7 +329,7 @@ Five built-in types are provided for consistency. Any string is accepted
 ## Admin Operations
 
 These functions require a superuser connection
-([`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md))
+([`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md))
 and are intended for maintenance — not day-to-day use.
 
 ### Deleting a flow
@@ -403,7 +403,7 @@ absent, so the standard
 Full function reference and articles are published as a pkgdown site on
 GitHub Pages:
 
-> **<https://quintengoens.github.io/pocketlogR>**
+> **<https://euctrl-pru.github.io/pocketlogR>**
 
 To build the docs locally:
 
@@ -421,79 +421,79 @@ GitHub Actions workflow at `.github/workflows/pkgdown.yml`.
 
 Establish a connection to PocketBase.
 
-- [`pl_connect()`](https://your-org.github.io/pocketlogR/reference/pl_connect.md)
+- [`pl_connect()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect.md)
   : Connect to PocketBase as a regular user
-- [`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md)
+- [`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md)
   : Connect to PocketBase as a superuser (admin)
 
 ## Setup
 
 One-time admin setup of PocketBase collections.
 
-- [`pl_setup()`](https://your-org.github.io/pocketlogR/reference/pl_setup.md)
+- [`pl_setup()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_setup.md)
   : Set up pocketlogR collections in PocketBase
 
 ## Flows
 
 Register and query monitored processes.
 
-- [`pl_create_flow()`](https://your-org.github.io/pocketlogR/reference/pl_create_flow.md)
+- [`pl_create_flow()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_create_flow.md)
   : Create a new flow
-- [`pl_get_flows()`](https://your-org.github.io/pocketlogR/reference/pl_get_flows.md)
+- [`pl_get_flows()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_flows.md)
   : List flows
 
 ## Dependencies
 
 Manage DAG-based upstream dependencies between flows.
 
-- [`pl_add_dependency()`](https://your-org.github.io/pocketlogR/reference/pl_add_dependency.md)
+- [`pl_add_dependency()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_add_dependency.md)
   : Add upstream dependencies to a flow
-- [`pl_remove_dependency()`](https://your-org.github.io/pocketlogR/reference/pl_remove_dependency.md)
+- [`pl_remove_dependency()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_remove_dependency.md)
   : Remove upstream dependencies from a flow
-- [`pl_get_dependencies()`](https://your-org.github.io/pocketlogR/reference/pl_get_dependencies.md)
+- [`pl_get_dependencies()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_dependencies.md)
   : Get upstream dependencies of a flow
 
 ## Status & DAG
 
 Inspect health across the dependency graph.
 
-- [`pl_get_status()`](https://your-org.github.io/pocketlogR/reference/pl_get_status.md)
+- [`pl_get_status()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_status.md)
   : Get dependency chain health status for a flow
-- [`pl_get_dag()`](https://your-org.github.io/pocketlogR/reference/pl_get_dag.md)
+- [`pl_get_dag()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_dag.md)
   : Get a full DAG overview of all flows and their health
 
 ## Logging
 
 Write log entries from your scripts and pipelines.
 
-- [`pl_log()`](https://your-org.github.io/pocketlogR/reference/pl_log.md)
+- [`pl_log()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_log.md)
   : Log an event for a flow
-- [`pl_success()`](https://your-org.github.io/pocketlogR/reference/pl_success.md)
+- [`pl_success()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_success.md)
   : Log a SUCCESS event
-- [`pl_error()`](https://your-org.github.io/pocketlogR/reference/pl_error.md)
+- [`pl_error()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_error.md)
   : Log an ERROR event
-- [`pl_fatal()`](https://your-org.github.io/pocketlogR/reference/pl_fatal.md)
+- [`pl_fatal()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_fatal.md)
   : Log a FATAL event
 
 ## Querying
 
 Read log entries back for reporting or alerting.
 
-- [`pl_get_logs()`](https://your-org.github.io/pocketlogR/reference/pl_get_logs.md)
+- [`pl_get_logs()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_logs.md)
   : Query log entries
 
 ## Admin Operations
 
 Superuser-only maintenance functions. Require a connection from
-[`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md).
+[`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md).
 
-- [`pl_delete_flow()`](https://your-org.github.io/pocketlogR/reference/pl_delete_flow.md)
+- [`pl_delete_flow()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_delete_flow.md)
   : Delete a flow (admin only)
-- [`pl_delete_logs()`](https://your-org.github.io/pocketlogR/reference/pl_delete_logs.md)
+- [`pl_delete_logs()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_delete_logs.md)
   : Delete log entries (admin only)
 
 ## Constants
 
-- [`pl_flow_types`](https://your-org.github.io/pocketlogR/reference/pl_flow_types.md)
+- [`pl_flow_types`](https://euctrl-pru.github.io/pocketlogR/reference/pl_flow_types.md)
   : Default flow types
 

@@ -15,7 +15,7 @@ pl_delete_logs(conn, flow = NULL, before = NULL, status = NULL)
 - conn:
 
   A superuser connection object from
-  [`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md).
+  [`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md).
 
 - flow:
 

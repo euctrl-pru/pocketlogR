@@ -28,12 +28,12 @@ and more.
 The package supports **two distinct authentication contexts**:
 
 1.  **Admin mode (superuser)** — used only for
-    [`pl_setup()`](https://your-org.github.io/pocketlogR/reference/pl_setup.md)
+    [`pl_setup()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_setup.md)
     to create collections and configure API rules. This is a one-time
     operation performed by the PocketBase administrator.
 2.  **User mode (regular user)** — used for all daily operations
-    ([`pl_log()`](https://your-org.github.io/pocketlogR/reference/pl_log.md),
-    [`pl_get_logs()`](https://your-org.github.io/pocketlogR/reference/pl_get_logs.md),
+    ([`pl_log()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_log.md),
+    [`pl_get_logs()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_logs.md),
     etc.). Authenticates against a regular PocketBase auth collection
     (default: `users`), not `_superusers`.
 
@@ -85,7 +85,7 @@ Two collections, created by the admin via `pl_setup(conn_admin)`.
 | `depends_on`  | relation | no       | Multi-relation to `pl_flows` (self-referencing). Lists upstream flows this flow depends on. Forms a DAG — cycles are validated and rejected at the R level. |
 
 **API rules** (set by
-[`pl_setup()`](https://your-org.github.io/pocketlogR/reference/pl_setup.md)): -
+[`pl_setup()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_setup.md)): -
 listRule: `@request.auth.id != ""` - viewRule:
 `@request.auth.id != ""` - createRule: `@request.auth.id != ""` -
 updateRule: `@request.auth.id != ""` - deleteRule: `null` (superuser
@@ -102,7 +102,7 @@ only)
 | `created`  | autodate | auto     | Managed by PocketBase                                      |
 
 **API rules** (set by
-[`pl_setup()`](https://your-org.github.io/pocketlogR/reference/pl_setup.md)): -
+[`pl_setup()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_setup.md)): -
 listRule: `@request.auth.id != ""` - viewRule:
 `@request.auth.id != ""` - createRule: `@request.auth.id != ""` -
 updateRule: `null` (superuser only — logs are immutable) - deleteRule:
@@ -143,7 +143,7 @@ pl_setup(conn)
 ```
 
 - **Requires a superuser connection** from
-  [`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md).
+  [`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md).
 - Creates `pl_flows` and `pl_logs` collections in PocketBase if they
   don’t exist.
 - Configures API rules so that authenticated regular users can
@@ -158,7 +158,7 @@ pl_delete_flow(conn, flow, force = FALSE)
 ```
 
 - **Requires a superuser connection** from
-  [`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md).
+  [`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md).
 - Deletes a flow by name. PocketBase enforces referential integrity —
   the call fails if any log entries reference the flow.
 - `force = TRUE`: deletes all log entries for the flow first, then
@@ -170,7 +170,7 @@ pl_delete_logs(conn, flow = NULL, before = NULL, status = NULL)
 ```
 
 - **Requires a superuser connection** from
-  [`pl_connect_admin()`](https://your-org.github.io/pocketlogR/reference/pl_connect_admin.md).
+  [`pl_connect_admin()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect_admin.md).
 - Deletes log entries matching the given filters. All arguments
   optional; combined with AND logic.
 - `flow`: only delete logs for this flow name.
@@ -188,13 +188,13 @@ pl_create_flow(conn, name, type, description = NULL, schedule = NULL, depends_on
 pl_get_flows(conn, type = NULL, name = NULL)
 ```
 
-- [`pl_create_flow()`](https://your-org.github.io/pocketlogR/reference/pl_create_flow.md)
+- [`pl_create_flow()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_create_flow.md)
   registers a new flow. Errors if a flow with that name already exists.
 - `depends_on`: optional character vector of upstream flow names
   (e.g. `c("ectrl_data_load", "email_confirmation")`). Resolved to
   PocketBase record IDs internally. Validates that all named flows exist
   and that adding the dependency would not create a cycle in the DAG.
-- [`pl_get_flows()`](https://your-org.github.io/pocketlogR/reference/pl_get_flows.md)
+- [`pl_get_flows()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_flows.md)
   returns a data.frame of flows, optionally filtered by `type` or
   `name`. The `depends_on` column contains a list-column of upstream
   flow names.
@@ -207,11 +207,11 @@ pl_remove_dependency(conn, flow, depends_on)
 pl_get_dependencies(conn, flow, recursive = FALSE)
 ```
 
-- [`pl_add_dependency()`](https://your-org.github.io/pocketlogR/reference/pl_add_dependency.md):
+- [`pl_add_dependency()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_add_dependency.md):
   adds one or more upstream dependencies to an existing flow.
   `depends_on` is a character vector of flow names. Validates against
   cycles before writing.
-- [`pl_remove_dependency()`](https://your-org.github.io/pocketlogR/reference/pl_remove_dependency.md):
+- [`pl_remove_dependency()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_remove_dependency.md):
   removes one or more upstream dependencies from an existing flow.
 - `pl_get_dependencies(conn, flow, recursive = FALSE)`: returns a
   data.frame of upstream flows.
@@ -280,10 +280,10 @@ pl_get_dag(conn, since = NULL)
   poisoned). If downstream has never logged, its `effective_status` is
   `NA` — not poisoned.
 - Lives in `R/deps.R` alongside
-  [`pl_get_status()`](https://your-org.github.io/pocketlogR/reference/pl_get_status.md).
+  [`pl_get_status()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_status.md).
 - **Algorithm:**
   1.  Fetch all flows via
-      [`pl_get_flows()`](https://your-org.github.io/pocketlogR/reference/pl_get_flows.md).
+      [`pl_get_flows()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_flows.md).
   2.  For each flow, fetch its latest log entry (respecting `since`).
   3.  For each flow, walk the full upstream DAG recursively; for any
       upstream with `ERROR`/`FATAL`, check if that failure timestamp is
@@ -294,9 +294,9 @@ pl_get_dag(conn, since = NULL)
 
 #### Cycle detection
 
-[`pl_create_flow()`](https://your-org.github.io/pocketlogR/reference/pl_create_flow.md)
+[`pl_create_flow()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_create_flow.md)
 and
-[`pl_add_dependency()`](https://your-org.github.io/pocketlogR/reference/pl_add_dependency.md)
+[`pl_add_dependency()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_add_dependency.md)
 must validate that adding a dependency does not create a cycle. The
 validation algorithm: 1. Starting from the proposed upstream flow(s),
 walk the DAG upward recursively. 2. If the target flow (the one gaining
@@ -385,7 +385,7 @@ convenience.
   pipeline style for all HTTP calls.
 - Use `jsonlite` for JSON serialization/deserialization.
 - Use `cli` for user-facing messages (e.g. in
-  [`pl_setup()`](https://your-org.github.io/pocketlogR/reference/pl_setup.md),
+  [`pl_setup()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_setup.md),
   connection success messages).
 - Keep Imports minimal: `httr2`, `jsonlite`, `cli`.
 - All exported functions must have roxygen2 documentation with
@@ -440,7 +440,7 @@ convenience.
 
 Documentation is generated with **pkgdown** and hosted on GitHub Pages.
 
-- **Site URL:** `https://quintengoens.github.io/pocketlogR`
+- **Site URL:** `https://euctrl-pru.github.io/pocketlogR`
 
 - **Config file:** `_pkgdown.yml` — Bootstrap 5 template, reference
   sections organised by function group.
@@ -602,7 +602,7 @@ Edit `~/.Renviron` (or create a project-level `.Renviron`):
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("your-org/pocketlogR")
+devtools::install_github("euctrl-pru/pocketlogR")
 ```
 
 ### 6. Quick Start
@@ -677,7 +677,7 @@ Explain the dependency model: flows can declare upstream dependencies
 via `depends_on`, forming a directed acyclic graph (DAG). Include: - How
 to define dependencies at creation time and add/remove them later. - The
 ASCII DAG diagram from the example showing the flow relationships. - How
-[`pl_get_status()`](https://your-org.github.io/pocketlogR/reference/pl_get_status.md)
+[`pl_get_status()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_get_status.md)
 walks the chain and what the output looks like. - Note that dependencies
 are purely informational — logging is never blocked. - Note that cycles
 are detected and rejected.

@@ -22,7 +22,7 @@ pl_create_flow(
 - conn:
 
   A connection object from
-  [`pl_connect()`](https://your-org.github.io/pocketlogR/reference/pl_connect.md).
+  [`pl_connect()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect.md).
 
 - name:
 
@@ -31,7 +31,7 @@ pl_create_flow(
 - type:
 
   Flow type string. See
-  [pl_flow_types](https://your-org.github.io/pocketlogR/reference/pl_flow_types.md)
+  [pl_flow_types](https://euctrl-pru.github.io/pocketlogR/reference/pl_flow_types.md)
   for defaults, but any string is accepted.
 
 - description:

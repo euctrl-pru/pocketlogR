@@ -13,7 +13,7 @@ pl_get_flows(conn, type = NULL, name = NULL)
 - conn:
 
   A connection object from
-  [`pl_connect()`](https://your-org.github.io/pocketlogR/reference/pl_connect.md).
+  [`pl_connect()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect.md).
 
 - type:
 

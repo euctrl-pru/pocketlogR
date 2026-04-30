@@ -15,7 +15,7 @@ pl_log(conn, flow, status, message = NULL, metadata = NULL)
 - conn:
 
   A connection object from
-  [`pl_connect()`](https://your-org.github.io/pocketlogR/reference/pl_connect.md).
+  [`pl_connect()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect.md).
 
 - flow:
 

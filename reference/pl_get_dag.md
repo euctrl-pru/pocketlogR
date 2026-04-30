@@ -17,7 +17,7 @@ pl_get_dag(conn, since = NULL)
 - conn:
 
   A connection object from
-  [`pl_connect()`](https://your-org.github.io/pocketlogR/reference/pl_connect.md).
+  [`pl_connect()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect.md).
 
 - since:
 

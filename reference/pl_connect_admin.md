@@ -1,9 +1,9 @@
 # Connect to PocketBase as a superuser (admin)
 
 Authenticates against the `_superusers` collection. Use this only for
-[`pl_setup()`](https://your-org.github.io/pocketlogR/reference/pl_setup.md).
+[`pl_setup()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_setup.md).
 Regular operations should use
-[`pl_connect()`](https://your-org.github.io/pocketlogR/reference/pl_connect.md).
+[`pl_connect()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect.md).
 
 ## Usage
 

@@ -14,7 +14,7 @@ pl_remove_dependency(conn, flow, depends_on)
 - conn:
 
   A connection object from
-  [`pl_connect()`](https://your-org.github.io/pocketlogR/reference/pl_connect.md).
+  [`pl_connect()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_connect.md).
 
 - flow:
 
