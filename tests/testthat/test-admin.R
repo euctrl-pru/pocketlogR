@@ -50,7 +50,7 @@ test_that("pl_delete_flow removes a flow with no logs", {
   conn       <- live_conn()
   nm <- paste0("admin_del_", format(Sys.time(), "%H%M%S"))
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   expect_equal(nrow(pl_get_flows(conn, name = nm)), 1)
 
   pl_delete_flow(conn_admin, nm)
@@ -63,7 +63,7 @@ test_that("pl_delete_flow errors when logs exist and force = FALSE", {
   nm <- paste0("admin_noforce_", format(Sys.time(), "%H%M%S"))
   on.exit(pl_delete_flow(conn_admin, nm, force = TRUE), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   pl_success(conn, nm, message = "test log")
 
   expect_error(pl_delete_flow(conn_admin, nm, force = FALSE), "log entries")
@@ -74,7 +74,7 @@ test_that("pl_delete_flow with force = TRUE removes logs then flow", {
   conn       <- live_conn()
   nm <- paste0("admin_force_", format(Sys.time(), "%H%M%S"))
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   pl_success(conn, nm, message = "will be deleted")
   pl_error(conn,   nm, message = "this too")
 
@@ -90,7 +90,7 @@ test_that("pl_delete_logs removes logs matching flow filter", {
   nm <- paste0("admin_dlog_", format(Sys.time(), "%H%M%S"))
   on.exit(pl_delete_flow(conn_admin, nm, force = TRUE), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   pl_success(conn, nm, message = "a")
   pl_error(conn,   nm, message = "b")
 
@@ -107,7 +107,7 @@ test_that("pl_delete_logs respects status filter", {
   nm <- paste0("admin_dstat_", format(Sys.time(), "%H%M%S"))
   on.exit(pl_delete_flow(conn_admin, nm, force = TRUE), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   pl_success(conn, nm, message = "keep me")
   pl_error(conn,   nm, message = "delete me")
 
@@ -125,7 +125,7 @@ test_that("pl_delete_logs respects before filter", {
   nm <- paste0("admin_dbef_", format(Sys.time(), "%H%M%S"))
   on.exit(pl_delete_flow(conn_admin, nm, force = TRUE), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   pl_success(conn, nm, message = "old log")
 
   # A 'before' in the future should delete the log; in the past should not
@@ -140,7 +140,7 @@ test_that("pl_delete_logs returns 0 when nothing matches", {
   nm <- paste0("admin_dnone_", format(Sys.time(), "%H%M%S"))
   on.exit(pl_delete_flow(conn_admin, nm, force = TRUE), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   # no logs created
 
   n <- pl_delete_logs(conn_admin, flow = nm)

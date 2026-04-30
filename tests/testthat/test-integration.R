@@ -62,7 +62,7 @@ test_that("pl_create_flow creates a flow and pl_get_flows retrieves it", {
   nm <- paste0("inttest_create_", format(Sys.time(), "%H%M%S"))
   on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job",
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner",
                  description = "Integration test",
                  schedule    = "0 6 * * *")
 
@@ -70,7 +70,20 @@ test_that("pl_create_flow creates a flow and pl_get_flows retrieves it", {
   expect_equal(nrow(flows), 1)
   expect_equal(flows$name,     nm)
   expect_equal(flows$type,     "data_job")
+  expect_equal(flows$owner,    "test-owner")
   expect_equal(flows$schedule, "0 6 * * *")
+})
+
+test_that("pl_create_flow stores and retrieves owner", {
+  conn_admin <- live_admin_conn()
+  conn       <- live_conn()
+  nm <- paste0("inttest_owner_", format(Sys.time(), "%H%M%S"))
+  on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
+
+  pl_create_flow(conn, nm, type = "data_job", owner = "team-data")
+
+  flows <- pl_get_flows(conn, name = nm)
+  expect_equal(flows$owner, "team-data")
 })
 
 test_that("pl_create_flow errors if flow already exists", {
@@ -79,8 +92,8 @@ test_that("pl_create_flow errors if flow already exists", {
   nm <- paste0("inttest_dup_", format(Sys.time(), "%H%M%S"))
   on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job")
-  expect_error(pl_create_flow(conn, nm, type = "data_job"), "already exists")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
+  expect_error(pl_create_flow(conn, nm, type = "data_job", owner = "test-owner"), "already exists")
 })
 
 test_that("pl_get_flows filters by type", {
@@ -89,7 +102,7 @@ test_that("pl_get_flows filters by type", {
   nm <- paste0("inttest_type_", format(Sys.time(), "%H%M%S"))
   on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "website_online")
+  pl_create_flow(conn, nm, type = "website_online", owner = "test-owner")
 
   results <- pl_get_flows(conn, type = "website_online")
   expect_s3_class(results, "data.frame")
@@ -105,7 +118,7 @@ test_that("pl_success logs a SUCCESS entry and pl_get_logs retrieves it", {
   nm <- paste0("inttest_log_", format(Sys.time(), "%H%M%S"))
   on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   pl_success(conn, nm, message = "all good", metadata = list(rows = 42L))
 
   logs <- pl_get_logs(conn, flow = nm)
@@ -120,7 +133,7 @@ test_that("pl_error and pl_fatal log correct statuses", {
   nm <- paste0("inttest_ef_", format(Sys.time(), "%H%M%S"))
   on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   pl_error(conn, nm, message = "something broke")
   pl_fatal(conn, nm, message = "unrecoverable")
 
@@ -135,7 +148,7 @@ test_that("pl_get_logs filters by status", {
   nm <- paste0("inttest_filt_", format(Sys.time(), "%H%M%S"))
   on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
 
-  pl_create_flow(conn, nm, type = "data_job")
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
   pl_success(conn, nm, message = "ok")
   pl_error(conn,   nm, message = "bad")
 
@@ -160,8 +173,8 @@ test_that("pl_add_dependency and pl_get_dependencies work correctly", {
     delete_flow(conn_admin, conn, up)
   }, add = TRUE)
 
-  pl_create_flow(conn, up,   type = "data_job")
-  pl_create_flow(conn, down, type = "db_check")
+  pl_create_flow(conn, up,   type = "data_job", owner = "test-owner")
+  pl_create_flow(conn, down, type = "db_check", owner = "test-owner")
 
   pl_add_dependency(conn, down, up)
 
@@ -181,8 +194,8 @@ test_that("pl_remove_dependency removes a dependency", {
     delete_flow(conn_admin, conn, up)
   }, add = TRUE)
 
-  pl_create_flow(conn, up,   type = "data_job")
-  pl_create_flow(conn, down, type = "db_check", depends_on = up)
+  pl_create_flow(conn, up,   type = "data_job", owner = "test-owner")
+  pl_create_flow(conn, down, type = "db_check", owner = "test-owner", depends_on = up)
 
   pl_remove_dependency(conn, down, up)
 
@@ -200,8 +213,8 @@ test_that("pl_add_dependency rejects a cycle", {
     delete_flow(conn_admin, conn, a)
   }, add = TRUE)
 
-  pl_create_flow(conn, a, type = "data_job")
-  pl_create_flow(conn, b, type = "data_job", depends_on = a)
+  pl_create_flow(conn, a, type = "data_job", owner = "test-owner")
+  pl_create_flow(conn, b, type = "data_job", owner = "test-owner", depends_on = a)
 
   expect_error(pl_add_dependency(conn, a, b), "cycle")
 })
@@ -219,9 +232,9 @@ test_that("pl_get_dependencies recursive = TRUE returns transitive deps", {
     delete_flow(conn_admin, conn, a)
   }, add = TRUE)
 
-  pl_create_flow(conn, a,  type = "data_job")
-  pl_create_flow(conn, b,  type = "data_job", depends_on = a)
-  pl_create_flow(conn, c_, type = "data_job", depends_on = b)
+  pl_create_flow(conn, a,  type = "data_job", owner = "test-owner")
+  pl_create_flow(conn, b,  type = "data_job", owner = "test-owner", depends_on = a)
+  pl_create_flow(conn, c_, type = "data_job", owner = "test-owner", depends_on = b)
 
   deps_direct    <- pl_get_dependencies(conn, c_, recursive = FALSE)
   deps_recursive <- pl_get_dependencies(conn, c_, recursive = TRUE)
@@ -246,8 +259,8 @@ test_that("pl_get_status returns chain with correct depths", {
     delete_flow(conn_admin, conn, up)
   }, add = TRUE)
 
-  pl_create_flow(conn, up,   type = "data_job")
-  pl_create_flow(conn, down, type = "db_check", depends_on = up)
+  pl_create_flow(conn, up,   type = "data_job", owner = "test-owner")
+  pl_create_flow(conn, down, type = "db_check", owner = "test-owner", depends_on = up)
 
   pl_success(conn, up,   message = "upstream ok")
   pl_success(conn, down, message = "downstream ok")
@@ -275,8 +288,8 @@ test_that("pl_get_dag returns correct structure and poisoning", {
     delete_flow(conn_admin, conn, up)
   }, add = TRUE)
 
-  pl_create_flow(conn, up,   type = "data_job")
-  pl_create_flow(conn, down, type = "db_check", depends_on = up)
+  pl_create_flow(conn, up,   type = "data_job", owner = "test-owner")
+  pl_create_flow(conn, down, type = "db_check", owner = "test-owner", depends_on = up)
 
   # upstream fails, then downstream runs with success -> downstream is POISONED
   pl_error(conn,   up,   message = "upstream broke")
@@ -301,12 +314,10 @@ test_that("pl_get_dag returns correct structure and poisoning", {
   expect_false(down_row$is_root)
 })
 
-test_that("pl_get_dag returns empty data.frame when no flows exist", {
+test_that("pl_get_dag returns correct columns and types", {
   conn_admin <- live_admin_conn()
   conn       <- live_conn()
 
-  # Temporarily verify structure with existing data (we can't wipe all flows,
-  # so just check columns are present and types correct)
   dag <- pl_get_dag(conn)
   expect_s3_class(dag, "data.frame")
   expect_true(all(c("flow", "type", "schedule", "raw_status", "raw_status_time",

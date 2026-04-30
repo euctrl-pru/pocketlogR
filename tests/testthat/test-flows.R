@@ -9,15 +9,22 @@ test_that("pl_flow_types is a character vector with expected values", {
 
 test_that("pl_create_flow validates name argument", {
   conn <- list(url = "https://x.io", token = "tok")
-  expect_error(pl_create_flow(conn, name = 123, type = "data_job"), "'name' must be")
-  expect_error(pl_create_flow(conn, name = "", type = "data_job"), "'name' must be")
-  expect_error(pl_create_flow(conn, name = c("a", "b"), type = "data_job"), "'name' must be")
+  expect_error(pl_create_flow(conn, name = 123,       type = "data_job", owner = "x"), "'name' must be")
+  expect_error(pl_create_flow(conn, name = "",        type = "data_job", owner = "x"), "'name' must be")
+  expect_error(pl_create_flow(conn, name = c("a","b"),type = "data_job", owner = "x"), "'name' must be")
 })
 
 test_that("pl_create_flow validates type argument", {
   conn <- list(url = "https://x.io", token = "tok")
-  expect_error(pl_create_flow(conn, name = "myflow", type = ""), "'type' must be")
-  expect_error(pl_create_flow(conn, name = "myflow", type = 42), "'type' must be")
+  expect_error(pl_create_flow(conn, name = "myflow", type = "", owner = "x"), "'type' must be")
+  expect_error(pl_create_flow(conn, name = "myflow", type = 42,  owner = "x"), "'type' must be")
+})
+
+test_that("pl_create_flow validates owner argument", {
+  conn <- list(url = "https://x.io", token = "tok")
+  expect_error(pl_create_flow(conn, name = "myflow", type = "data_job", owner = ""),  "'owner' must be")
+  expect_error(pl_create_flow(conn, name = "myflow", type = "data_job", owner = 123), "'owner' must be")
+  expect_error(pl_create_flow(conn, name = "myflow", type = "data_job", owner = c("a", "b")), "'owner' must be")
 })
 
 test_that("pl_get_flows returns empty data.frame with correct columns when no results", {
