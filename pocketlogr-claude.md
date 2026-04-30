@@ -79,15 +79,20 @@ pl_create_flow(conn,
                type        = "data_job",       # see Flow Types below
                owner       = "quinten",        # required: person or team responsible
                description = "What this does",
-               schedule    = "0 6 * * *")      # optional cron
+               schedule    = "0 6 * * *",      # optional cron
+               metadata    = list(url = "https://...", region = "EU"))  # optional arbitrary JSON
 ```
+
+`owner` is required. `metadata` is an optional named R list serialised
+to JSON — use it for any flow-level context (URLs, contacts, config,
+tags).
 
 [`pl_create_flow()`](https://euctrl-pru.github.io/pocketlogR/reference/pl_create_flow.md)
 errors if the flow already exists — safe to guard with a check:
 
 ``` r
 if (nrow(pl_get_flows(conn, name = "my_flow_name")) == 0) {
-  pl_create_flow(conn, "my_flow_name", type = "data_job")
+  pl_create_flow(conn, "my_flow_name", type = "data_job", owner = "quinten")
 }
 ```
 
@@ -190,8 +195,9 @@ When adding this to a project’s `CLAUDE.md`, append a section like:
 - Type: `"<type>"`
 - Owner: `"<owner>"`
 - Schedule: `"<cron or description>"`
+- Metadata: `list(<key> = <value>, ...)` stored on the flow record (or none)
 - Depends on: `c("<upstream_flow>")` (or none)
 - Log success at the end of the main execution block
 - Log error in the tryCatch handler with `conditionMessage(e)` as the message
-- Include relevant metadata: e.g. `list(rows = n, source = "...", duration_s = t)`
+- Include relevant run metadata: e.g. `list(rows = n, source = "...", duration_s = t)`
 ```

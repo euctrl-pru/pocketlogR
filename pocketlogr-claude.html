@@ -85,11 +85,13 @@ Source: <a href="https://github.com/euctrl-pru/pocketlogR" class="external-link 
 <span>               type        <span class="op">=</span> <span class="st">"data_job"</span>,       <span class="co"># see Flow Types below</span></span>
 <span>               owner       <span class="op">=</span> <span class="st">"quinten"</span>,        <span class="co"># required: person or team responsible</span></span>
 <span>               description <span class="op">=</span> <span class="st">"What this does"</span>,</span>
-<span>               schedule    <span class="op">=</span> <span class="st">"0 6 * * *"</span><span class="op">)</span>      <span class="co"># optional cron</span></span></code></pre></div>
+<span>               schedule    <span class="op">=</span> <span class="st">"0 6 * * *"</span>,      <span class="co"># optional cron</span></span>
+<span>               metadata    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>url <span class="op">=</span> <span class="st">"https://..."</span>, region <span class="op">=</span> <span class="st">"EU"</span><span class="op">)</span><span class="op">)</span>  <span class="co"># optional arbitrary JSON</span></span></code></pre></div>
+<p><code>owner</code> is required. <code>metadata</code> is an optional named R list serialised to JSON — use it for any flow-level context (URLs, contacts, config, tags).</p>
 <p><code><a href="reference/pl_create_flow.html">pl_create_flow()</a></code> errors if the flow already exists — safe to guard with a check:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="reference/pl_get_flows.html">pl_get_flows</a></span><span class="op">(</span><span class="va">conn</span>, name <span class="op">=</span> <span class="st">"my_flow_name"</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="reference/pl_create_flow.html">pl_create_flow</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"my_flow_name"</span>, type <span class="op">=</span> <span class="st">"data_job"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/pl_create_flow.html">pl_create_flow</a></span><span class="op">(</span><span class="va">conn</span>, <span class="st">"my_flow_name"</span>, type <span class="op">=</span> <span class="st">"data_job"</span>, owner <span class="op">=</span> <span class="st">"quinten"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <hr></div>
 <div class="section level2">
@@ -165,10 +167,11 @@ Source: <a href="https://github.com/euctrl-pru/pocketlogR" class="external-link 
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="ss">- </span>Type: <span class="in">`"&lt;type&gt;"`</span></span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="ss">- </span>Owner: <span class="in">`"&lt;owner&gt;"`</span></span>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="ss">- </span>Schedule: <span class="in">`"&lt;cron or description&gt;"`</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="ss">- </span>Depends on: <span class="in">`c("&lt;upstream_flow&gt;")`</span> (or none)</span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="ss">- </span>Log success at the end of the main execution block</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="ss">- </span>Log error in the tryCatch handler with <span class="in">`conditionMessage(e)`</span> as the message</span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="ss">- </span>Include relevant metadata: e.g. <span class="in">`list(rows = n, source = "...", duration_s = t)`</span></span></code></pre></div>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="ss">- </span>Metadata: <span class="in">`list(&lt;key&gt; = &lt;value&gt;, ...)`</span> stored on the flow record (or none)</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="ss">- </span>Depends on: <span class="in">`c("&lt;upstream_flow&gt;")`</span> (or none)</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="ss">- </span>Log success at the end of the main execution block</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="ss">- </span>Log error in the tryCatch handler with <span class="in">`conditionMessage(e)`</span> as the message</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="ss">- </span>Include relevant run metadata: e.g. <span class="in">`list(rows = n, source = "...", duration_s = t)`</span></span></code></pre></div>
 </div>
 </div>
 
