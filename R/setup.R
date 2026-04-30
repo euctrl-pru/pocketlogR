@@ -136,6 +136,7 @@ pl_setup <- function(conn) {
         collectionId  = flows_col_id,
         cascadeDelete = FALSE
       ),
+      list(name = "log_type", type = "text",     required = TRUE),
       list(name = "status",   type = "text",     required = TRUE),
       list(name = "message",  type = "text",     required = FALSE),
       list(name = "metadata", type = "json",     required = FALSE),

@@ -4,12 +4,15 @@
 \alias{pl_error}
 \title{Log an ERROR event}
 \usage{
-pl_error(conn, flow, message = NULL, metadata = NULL)
+pl_error(conn, flow, log_type, message = NULL, metadata = NULL)
 }
 \arguments{
 \item{conn}{A connection object from \code{\link[=pl_connect]{pl_connect()}}.}
 
 \item{flow}{Flow name (character).}
+
+\item{log_type}{Free-text log type (e.g. \code{"data_job"}, \code{"website_online"}).
+See \link{pl_log_types} for standard values, but any string is accepted.}
 
 \item{message}{Optional human-readable log message.}
 
@@ -23,7 +26,7 @@ Convenience wrapper around \code{\link[=pl_log]{pl_log()}} for recoverable error
 }
 \examples{
 \dontrun{
-pl_error(conn, "ans_website_online",
+pl_error(conn, "ans_website_online", log_type = "website_online",
          message = "HTTP 503 returned",
          metadata = list(http_status = 503))
 }

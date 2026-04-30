@@ -4,7 +4,7 @@
 \alias{pl_log}
 \title{Log an event for a flow}
 \usage{
-pl_log(conn, flow, status, message = NULL, metadata = NULL)
+pl_log(conn, flow, status, log_type, message = NULL, metadata = NULL)
 }
 \arguments{
 \item{conn}{A connection object from \code{\link[=pl_connect]{pl_connect()}}.}
@@ -12,6 +12,9 @@ pl_log(conn, flow, status, message = NULL, metadata = NULL)
 \item{flow}{Flow name (character).}
 
 \item{status}{One of \code{"SUCCESS"}, \code{"ERROR"}, or \code{"FATAL"}.}
+
+\item{log_type}{Free-text log type (e.g. \code{"data_job"}, \code{"website_online"}).
+See \link{pl_log_types} for standard values, but any string is accepted.}
 
 \item{message}{Optional human-readable log message.}
 
@@ -28,7 +31,7 @@ and returns \code{NULL} invisibly — the calling script is never stopped.
 \examples{
 \dontrun{
 conn <- pl_connect()
-pl_log(conn, "ectrl_data_load", "SUCCESS",
+pl_log(conn, "ectrl_data_load", "SUCCESS", log_type = "data_job",
        message = "Loaded 14230 rows",
        metadata = list(rows = 14230, duration_s = 45.2))
 }

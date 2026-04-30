@@ -7,6 +7,8 @@
 #' @param conn A connection object from [pl_connect()].
 #' @param flow Flow name (character).
 #' @param status One of `"SUCCESS"`, `"ERROR"`, or `"FATAL"`.
+#' @param log_type Free-text log type (e.g. `"data_job"`, `"website_online"`).
+#'   See [pl_log_types] for standard values, but any string is accepted.
 #' @param message Optional human-readable log message.
 #' @param metadata Optional named list, serialized to JSON.
 #'
@@ -15,12 +17,12 @@
 #' @examples
 #' \dontrun{
 #' conn <- pl_connect()
-#' pl_log(conn, "ectrl_data_load", "SUCCESS",
+#' pl_log(conn, "ectrl_data_load", "SUCCESS", log_type = "data_job",
 #'        message = "Loaded 14230 rows",
 #'        metadata = list(rows = 14230, duration_s = 45.2))
 #' }
 #' @export
-pl_log <- function(conn, flow, status, message = NULL, metadata = NULL) {
+pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL) {
   pl_validate_conn(conn)
 
   if (!status %in% .valid_statuses) {
@@ -29,15 +31,19 @@ pl_log <- function(conn, flow, status, message = NULL, metadata = NULL) {
   if (!is.character(flow) || length(flow) != 1 || nchar(flow) == 0) {
     stop("'flow' must be a non-empty character string.")
   }
+  if (!is.character(log_type) || length(log_type) != 1 || nchar(log_type) == 0) {
+    stop("'log_type' must be a non-empty character string.")
+  }
 
   result <- pl_retry(
     {
       flow_id <- pl_resolve_flow_id(conn, flow)
 
       body <- list(
-        flow    = flow_id,
-        status  = status,
-        message = message
+        flow     = flow_id,
+        log_type = log_type,
+        status   = status,
+        message  = message
       )
       if (!is.null(metadata)) {
         body$metadata <- jsonlite::toJSON(metadata, auto_unbox = TRUE)
@@ -73,6 +79,8 @@ pl_log <- function(conn, flow, status, message = NULL, metadata = NULL) {
 #'
 #' @param conn A connection object from [pl_connect()].
 #' @param flow Flow name (character).
+#' @param log_type Free-text log type (e.g. `"data_job"`, `"website_online"`).
+#'   See [pl_log_types] for standard values, but any string is accepted.
 #' @param message Optional human-readable log message.
 #' @param metadata Optional named list, serialized to JSON.
 #'
@@ -80,13 +88,13 @@ pl_log <- function(conn, flow, status, message = NULL, metadata = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' pl_success(conn, "ectrl_data_load",
+#' pl_success(conn, "ectrl_data_load", log_type = "data_job",
 #'            message = "Loaded 14230 rows",
 #'            metadata = list(rows = 14230))
 #' }
 #' @export
-pl_success <- function(conn, flow, message = NULL, metadata = NULL) {
-  pl_log(conn, flow, "SUCCESS", message = message, metadata = metadata)
+pl_success <- function(conn, flow, log_type, message = NULL, metadata = NULL) {
+  pl_log(conn, flow, "SUCCESS", log_type = log_type, message = message, metadata = metadata)
 }
 
 #' Log an ERROR event
@@ -95,6 +103,8 @@ pl_success <- function(conn, flow, message = NULL, metadata = NULL) {
 #'
 #' @param conn A connection object from [pl_connect()].
 #' @param flow Flow name (character).
+#' @param log_type Free-text log type (e.g. `"data_job"`, `"website_online"`).
+#'   See [pl_log_types] for standard values, but any string is accepted.
 #' @param message Optional human-readable log message.
 #' @param metadata Optional named list, serialized to JSON.
 #'
@@ -102,13 +112,13 @@ pl_success <- function(conn, flow, message = NULL, metadata = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' pl_error(conn, "ans_website_online",
+#' pl_error(conn, "ans_website_online", log_type = "website_online",
 #'          message = "HTTP 503 returned",
 #'          metadata = list(http_status = 503))
 #' }
 #' @export
-pl_error <- function(conn, flow, message = NULL, metadata = NULL) {
-  pl_log(conn, flow, "ERROR", message = message, metadata = metadata)
+pl_error <- function(conn, flow, log_type, message = NULL, metadata = NULL) {
+  pl_log(conn, flow, "ERROR", log_type = log_type, message = message, metadata = metadata)
 }
 
 #' Log a FATAL event
@@ -117,6 +127,8 @@ pl_error <- function(conn, flow, message = NULL, metadata = NULL) {
 #'
 #' @param conn A connection object from [pl_connect()].
 #' @param flow Flow name (character).
+#' @param log_type Free-text log type (e.g. `"data_job"`, `"website_online"`).
+#'   See [pl_log_types] for standard values, but any string is accepted.
 #' @param message Optional human-readable log message.
 #' @param metadata Optional named list, serialized to JSON.
 #'
@@ -124,9 +136,10 @@ pl_error <- function(conn, flow, message = NULL, metadata = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' pl_fatal(conn, "ectrl_data_load", message = "Unrecoverable database error")
+#' pl_fatal(conn, "ectrl_data_load", log_type = "data_job",
+#'          message = "Unrecoverable database error")
 #' }
 #' @export
-pl_fatal <- function(conn, flow, message = NULL, metadata = NULL) {
-  pl_log(conn, flow, "FATAL", message = message, metadata = metadata)
+pl_fatal <- function(conn, flow, log_type, message = NULL, metadata = NULL) {
+  pl_log(conn, flow, "FATAL", log_type = log_type, message = message, metadata = metadata)
 }

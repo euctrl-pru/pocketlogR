@@ -1,19 +1,26 @@
 test_that("pl_log validates status values", {
   conn <- list(url = "https://x.io", token = "tok")
-  expect_error(pl_log(conn, "myflow", "INVALID"), "'status' must be one of")
-  expect_error(pl_log(conn, "myflow", "success"), "'status' must be one of")
-  expect_error(pl_log(conn, "myflow", ""), "'status' must be one of")
+  expect_error(pl_log(conn, "myflow", "INVALID", log_type = "data_job"), "'status' must be one of")
+  expect_error(pl_log(conn, "myflow", "success", log_type = "data_job"), "'status' must be one of")
+  expect_error(pl_log(conn, "myflow", "",        log_type = "data_job"), "'status' must be one of")
 })
 
 test_that("pl_log validates flow argument", {
   conn <- list(url = "https://x.io", token = "tok")
-  expect_error(pl_log(conn, "", "SUCCESS"), "'flow' must be")
-  expect_error(pl_log(conn, 123, "SUCCESS"), "'flow' must be")
-  expect_error(pl_log(conn, c("a", "b"), "SUCCESS"), "'flow' must be")
+  expect_error(pl_log(conn, "",        "SUCCESS", log_type = "data_job"), "'flow' must be")
+  expect_error(pl_log(conn, 123,       "SUCCESS", log_type = "data_job"), "'flow' must be")
+  expect_error(pl_log(conn, c("a","b"),"SUCCESS", log_type = "data_job"), "'flow' must be")
+})
+
+test_that("pl_log validates log_type argument", {
+  conn <- list(url = "https://x.io", token = "tok")
+  expect_error(pl_log(conn, "myflow", "SUCCESS", log_type = ""),        "'log_type' must be")
+  expect_error(pl_log(conn, "myflow", "SUCCESS", log_type = 123),       "'log_type' must be")
+  expect_error(pl_log(conn, "myflow", "SUCCESS", log_type = c("a","b")),"'log_type' must be")
 })
 
 test_that("pl_log validates conn", {
-  expect_error(pl_log("not-a-conn", "myflow", "SUCCESS"), "must be a connection list")
+  expect_error(pl_log("not-a-conn", "myflow", "SUCCESS", log_type = "data_job"), "must be a connection list")
 })
 
 test_that("pl_log warns and returns NULL after exhausting retries", {
@@ -29,7 +36,7 @@ test_that("pl_log warns and returns NULL after exhausting retries", {
     pl_resolve_flow_id = mock_resolve,
     {
       expect_warning(
-        result <- pl_log(conn, "myflow", "SUCCESS"),
+        result <- pl_log(conn, "myflow", "SUCCESS", log_type = "data_job"),
         "failed to log event"
       )
       expect_null(result)
@@ -68,48 +75,63 @@ test_that("pl_retry stops early on success", {
 
 test_that("pl_success calls pl_log with SUCCESS", {
   conn <- list(url = "https://x.io", token = "tok")
-  captured_status <- NULL
+  captured <- list()
 
   with_mocked_bindings(
-    pl_log = function(conn, flow, status, message = NULL, metadata = NULL) {
-      captured_status <<- status
+    pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL) {
+      captured$status   <<- status
+      captured$log_type <<- log_type
       invisible(NULL)
     },
     {
-      pl_success(conn, "myflow")
-      expect_equal(captured_status, "SUCCESS")
+      pl_success(conn, "myflow", log_type = "data_job")
+      expect_equal(captured$status,   "SUCCESS")
+      expect_equal(captured$log_type, "data_job")
     }
   )
 })
 
 test_that("pl_error calls pl_log with ERROR", {
   conn <- list(url = "https://x.io", token = "tok")
-  captured_status <- NULL
+  captured <- list()
 
   with_mocked_bindings(
-    pl_log = function(conn, flow, status, message = NULL, metadata = NULL) {
-      captured_status <<- status
+    pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL) {
+      captured$status   <<- status
+      captured$log_type <<- log_type
       invisible(NULL)
     },
     {
-      pl_error(conn, "myflow")
-      expect_equal(captured_status, "ERROR")
+      pl_error(conn, "myflow", log_type = "website_online")
+      expect_equal(captured$status,   "ERROR")
+      expect_equal(captured$log_type, "website_online")
     }
   )
 })
 
 test_that("pl_fatal calls pl_log with FATAL", {
   conn <- list(url = "https://x.io", token = "tok")
-  captured_status <- NULL
+  captured <- list()
 
   with_mocked_bindings(
-    pl_log = function(conn, flow, status, message = NULL, metadata = NULL) {
-      captured_status <<- status
+    pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL) {
+      captured$status   <<- status
+      captured$log_type <<- log_type
       invisible(NULL)
     },
     {
-      pl_fatal(conn, "myflow")
-      expect_equal(captured_status, "FATAL")
+      pl_fatal(conn, "myflow", log_type = "data_job")
+      expect_equal(captured$status,   "FATAL")
+      expect_equal(captured$log_type, "data_job")
     }
   )
+})
+
+test_that("pl_log_types is a character vector with expected values", {
+  expect_type(pl_log_types, "character")
+  expect_true("data_job"       %in% pl_log_types)
+  expect_true("website_online" %in% pl_log_types)
+  expect_true("website_status" %in% pl_log_types)
+  expect_true("email_check"    %in% pl_log_types)
+  expect_true("db_check"       %in% pl_log_types)
 })

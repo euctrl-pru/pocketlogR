@@ -4,12 +4,15 @@
 \alias{pl_fatal}
 \title{Log a FATAL event}
 \usage{
-pl_fatal(conn, flow, message = NULL, metadata = NULL)
+pl_fatal(conn, flow, log_type, message = NULL, metadata = NULL)
 }
 \arguments{
 \item{conn}{A connection object from \code{\link[=pl_connect]{pl_connect()}}.}
 
 \item{flow}{Flow name (character).}
+
+\item{log_type}{Free-text log type (e.g. \code{"data_job"}, \code{"website_online"}).
+See \link{pl_log_types} for standard values, but any string is accepted.}
 
 \item{message}{Optional human-readable log message.}
 
@@ -23,6 +26,7 @@ Convenience wrapper around \code{\link[=pl_log]{pl_log()}} for unrecoverable fai
 }
 \examples{
 \dontrun{
-pl_fatal(conn, "ectrl_data_load", message = "Unrecoverable database error")
+pl_fatal(conn, "ectrl_data_load", log_type = "data_job",
+         message = "Unrecoverable database error")
 }
 }

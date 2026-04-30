@@ -13,6 +13,21 @@ pl_flow_types <- c(
   "website_online"
 )
 
+#' Default log types
+#'
+#' A character vector of the default log type identifiers used by pocketlogR.
+#' These are not enforced — any string is accepted as a log type. They exist
+#' for documentation, consistency, and convenience.
+#'
+#' @export
+pl_log_types <- c(
+  "data_job",
+  "website_online",
+  "website_status",
+  "email_check",
+  "db_check"
+)
+
 .valid_statuses <- c("SUCCESS", "ERROR", "FATAL")
 
 pl_validate_conn <- function(conn) {

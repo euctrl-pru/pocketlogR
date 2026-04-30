@@ -87,35 +87,51 @@ if (nrow(pl_get_flows(conn, name = "my_flow_name")) == 0) {
 
 ## Logging functions
 
+Every log entry requires a `log_type` — a free-text string describing what kind of check or job this entry represents. Use values from `pl_log_types` for consistency, but any string is accepted.
+
 ```r
-pl_success(conn, flow, message = NULL, metadata = NULL)
-pl_error(conn,   flow, message = NULL, metadata = NULL)
-pl_fatal(conn,   flow, message = NULL, metadata = NULL)
+pl_success(conn, flow, log_type, message = NULL, metadata = NULL)
+pl_error(conn,   flow, log_type, message = NULL, metadata = NULL)
+pl_fatal(conn,   flow, log_type, message = NULL, metadata = NULL)
 
 # Or directly:
-pl_log(conn, flow, status = "SUCCESS", message = NULL, metadata = NULL)
+pl_log(conn, flow, status, log_type, message = NULL, metadata = NULL)
 # status must be one of: "SUCCESS", "ERROR", "FATAL"
 ```
 
 `metadata` accepts any named R list — serialised to JSON automatically:
 
 ```r
-pl_success(conn, "my_flow", metadata = list(rows = 1200, source = "ECTRL"))
+pl_success(conn, "my_flow", log_type = "data_job",
+           message = "Loaded 1200 rows",
+           metadata = list(rows = 1200, source = "ECTRL", duration_s = 42))
 ```
+
+Standard log types (any string accepted):
+
+| `log_type`       | Use for                                           |
+|------------------|---------------------------------------------------|
+| `data_job`       | ETL / data load pipeline                          |
+| `website_online` | Uptime check — is the site responding?            |
+| `website_status` | Periodic check if a site has had its expected update |
+| `email_check`    | Check if an expected email was received           |
+| `db_check`       | Database freshness check                          |
 
 ---
 
 ## Flow types
 
-Any string is accepted, but use these standard types for consistency:
+The `type` field on a flow describes what kind of process it is. Standard values (any string accepted):
 
-| Type             | Use for                                           |
+| `type`           | Use for                                           |
 |------------------|---------------------------------------------------|
 | `data_job`       | ETL / data load pipeline                          |
 | `website_status` | Periodic check if a site has had its expected update |
 | `email_check`    | Check if an expected email was received           |
 | `db_check`       | Database freshness check                          |
 | `website_online` | Uptime check — is the site responding?            |
+
+Note: `log_type` on each log entry is a separate concept — it describes what kind of check the individual log entry represents, and can differ from the flow's `type`.
 
 ---
 
@@ -176,6 +192,7 @@ When adding this to a project's `CLAUDE.md`, append a section like:
 - Schedule: `"<cron or description>"`
 - Metadata: `list(<key> = <value>, ...)` stored on the flow record (or none)
 - Depends on: `c("<upstream_flow>")` (or none)
+- `log_type` for each entry: `"<log_type>"` (e.g. `"data_job"`, `"website_online"`)
 - Log success at the end of the main execution block
 - Log error in the tryCatch handler with `conditionMessage(e)` as the message
 - Include relevant run metadata: e.g. `list(rows = n, source = "...", duration_s = t)`

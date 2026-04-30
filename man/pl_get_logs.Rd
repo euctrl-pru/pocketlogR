@@ -27,8 +27,8 @@ pl_get_logs(
 \item{limit}{Maximum number of records to return. Default 50.}
 }
 \value{
-A data.frame with columns: \code{id}, \code{flow} (flow name), \code{status},
-\code{message}, \code{metadata}, \code{created}.
+A data.frame with columns: \code{id}, \code{flow} (flow name), \code{log_type},
+\code{status}, \code{message}, \code{metadata}, \code{created}.
 }
 \description{
 Returns a data.frame of log entries, optionally filtered. All filter

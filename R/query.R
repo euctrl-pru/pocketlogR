@@ -10,8 +10,8 @@
 #' @param to Optional end timestamp (`POSIXct` or ISO 8601 string).
 #' @param limit Maximum number of records to return. Default 50.
 #'
-#' @return A data.frame with columns: `id`, `flow` (flow name), `status`,
-#'   `message`, `metadata`, `created`.
+#' @return A data.frame with columns: `id`, `flow` (flow name), `log_type`,
+#'   `status`, `message`, `metadata`, `created`.
 #'
 #' @examples
 #' \dontrun{
@@ -52,9 +52,9 @@ pl_get_logs <- function(conn, flow = NULL, status = NULL, from = NULL, to = NULL
 
   if (length(items) == 0) {
     return(data.frame(
-      id = character(0), flow = character(0), status = character(0),
-      message = character(0), metadata = I(list()), created = character(0),
-      stringsAsFactors = FALSE
+      id = character(0), flow = character(0), log_type = character(0),
+      status = character(0), message = character(0), metadata = I(list()),
+      created = character(0), stringsAsFactors = FALSE
     ))
   }
 
@@ -63,6 +63,7 @@ pl_get_logs <- function(conn, flow = NULL, status = NULL, from = NULL, to = NULL
     flow     = vapply(items, function(i) {
       (i$expand$flow$name %||% i$flow) %||% NA_character_
     }, character(1)),
+    log_type = vapply(items, function(i) i$log_type %||% NA_character_, character(1)),
     status   = vapply(items, function(i) i$status %||% NA_character_, character(1)),
     message  = vapply(items, function(i) i$message %||% NA_character_, character(1)),
     metadata = I(lapply(items, function(i) i$metadata)),

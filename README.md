@@ -181,13 +181,15 @@ pl_create_flow(conn, "ans_monthly_update", type = "website_status",
                schedule = "0 8 1 * *",
                depends_on = c("ans_data_freshness", "ans_website_online"))
 
-# Log outcomes from your scripts
+# Log outcomes from your scripts (log_type is required)
 pl_success(conn, "ectrl_data_load",
-           message = "Loaded 14,230 rows",
+           log_type = "data_job",
+           message  = "Loaded 14,230 rows",
            metadata = list(rows = 14230, duration_s = 45.2))
 
 pl_error(conn, "ans_website_online",
-         message = "HTTP 503 returned",
+         log_type = "website_online",
+         message  = "HTTP 503 returned",
          metadata = list(http_status = 503, response_time_ms = 12040))
 
 # Check the full dependency chain for a downstream flow
@@ -266,12 +268,13 @@ Dependencies are purely informational — logging is never blocked by upstream s
 | `pl_get_dependencies()`   | List direct or transitive upstream dependencies                     |
 | `pl_get_status()`         | Full dependency chain health for a single flow                      |
 | `pl_get_dag()`            | Full DAG overview with raw and cascade-aware effective status        |
-| `pl_log()`                | Log an event (`SUCCESS`, `ERROR`, or `FATAL`)                       |
+| `pl_log()`                | Log an event (`SUCCESS`, `ERROR`, or `FATAL`) with a required `log_type` |
 | `pl_success()`            | Shorthand for `pl_log(..., status = "SUCCESS")`                     |
 | `pl_error()`              | Shorthand for `pl_log(..., status = "ERROR")`                       |
 | `pl_fatal()`              | Shorthand for `pl_log(..., status = "FATAL")`                       |
 | `pl_get_logs()`           | Query log entries with optional filters                             |
 | `pl_flow_types`           | Character vector of the five default flow type strings              |
+| `pl_log_types`            | Character vector of the five default log type strings               |
 
 ### Admin only (superuser connection)
 
@@ -286,7 +289,7 @@ Dependencies are purely informational — logging is never blocked by upstream s
 
 ## Flow Types
 
-Five built-in types are provided for consistency. Any string is accepted — these are not enforced.
+The `type` field on a flow describes what kind of process it is. Five built-in values for consistency — any string accepted.
 
 | Type             | Description                                                    |
 |------------------|----------------------------------------------------------------|
@@ -295,6 +298,23 @@ Five built-in types are provided for consistency. Any string is accepted — the
 | `email_check`    | Check whether an expected email was received                   |
 | `db_check`       | Database freshness check — is the data up to date?             |
 | `website_online` | Uptime check — is the website responding?                      |
+
+## Log Types
+
+Every log entry carries a `log_type` — a required field describing what kind of check or run the entry represents. This is separate from the flow's `type` and can vary per log entry. Five built-in values for consistency — any string accepted.
+
+| Log type         | Description                                                    |
+|------------------|----------------------------------------------------------------|
+| `data_job`       | Data load / ETL run                                            |
+| `website_status` | Check whether a website has had its expected update            |
+| `email_check`    | Check whether an expected email was received                   |
+| `db_check`       | Database freshness check                                       |
+| `website_online` | Uptime check                                                   |
+
+```r
+pl_success(conn, "my_flow", log_type = "data_job", message = "Done")
+pl_error(conn,   "my_flow", log_type = "website_online", message = "Timeout")
+```
 
 ---
 

@@ -119,10 +119,11 @@ test_that("pl_success logs a SUCCESS entry and pl_get_logs retrieves it", {
   on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
 
   pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
-  pl_success(conn, nm, message = "all good", metadata = list(rows = 42L))
+  pl_success(conn, nm, log_type = "data_job", message = "all good", metadata = list(rows = 42L))
 
   logs <- pl_get_logs(conn, flow = nm)
   expect_equal(nrow(logs), 1)
+  expect_equal(logs$log_type[[1]], "data_job")
   expect_equal(logs$status[[1]],  "SUCCESS")
   expect_equal(logs$message[[1]], "all good")
 })
@@ -134,8 +135,8 @@ test_that("pl_error and pl_fatal log correct statuses", {
   on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
 
   pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
-  pl_error(conn, nm, message = "something broke")
-  pl_fatal(conn, nm, message = "unrecoverable")
+  pl_error(conn, nm, log_type = "data_job", message = "something broke")
+  pl_fatal(conn, nm, log_type = "data_job", message = "unrecoverable")
 
   logs <- pl_get_logs(conn, flow = nm)
   expect_equal(nrow(logs), 2)
@@ -149,8 +150,8 @@ test_that("pl_get_logs filters by status", {
   on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
 
   pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
-  pl_success(conn, nm, message = "ok")
-  pl_error(conn,   nm, message = "bad")
+  pl_success(conn, nm, log_type = "data_job", message = "ok")
+  pl_error(conn,   nm, log_type = "data_job", message = "bad")
 
   success_logs <- pl_get_logs(conn, flow = nm, status = "SUCCESS")
   expect_equal(nrow(success_logs), 1)
@@ -262,8 +263,8 @@ test_that("pl_get_status returns chain with correct depths", {
   pl_create_flow(conn, up,   type = "data_job", owner = "test-owner")
   pl_create_flow(conn, down, type = "db_check", owner = "test-owner", depends_on = up)
 
-  pl_success(conn, up,   message = "upstream ok")
-  pl_success(conn, down, message = "downstream ok")
+  pl_success(conn, up,   log_type = "data_job", message = "upstream ok")
+  pl_success(conn, down, log_type = "db_check",  message = "downstream ok")
 
   status <- pl_get_status(conn, down)
   expect_s3_class(status, "data.frame")
@@ -292,9 +293,9 @@ test_that("pl_get_dag returns correct structure and poisoning", {
   pl_create_flow(conn, down, type = "db_check", owner = "test-owner", depends_on = up)
 
   # upstream fails, then downstream runs with success -> downstream is POISONED
-  pl_error(conn,   up,   message = "upstream broke")
+  pl_error(conn,   up,   log_type = "data_job", message = "upstream broke")
   Sys.sleep(1)
-  pl_success(conn, down, message = "downstream ran after upstream broke")
+  pl_success(conn, down, log_type = "db_check",  message = "downstream ran after upstream broke")
 
   dag <- pl_get_dag(conn)
   expect_s3_class(dag, "data.frame")
