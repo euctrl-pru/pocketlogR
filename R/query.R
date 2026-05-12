@@ -11,8 +11,8 @@
 #' @param limit Maximum number of records to return. Default 50.
 #'
 #' @return A data.frame with columns: `id`, `flow` (flow name), `log_type`,
-#'   `status`, `message`, `metadata`, `logged_by`, `source_file`,
-#'   `source_repo`, `created`.
+#'   `status`, `message`, `metadata`, `logged_by`, `logged_from` (list-column),
+#'   `source_file`, `source_repo`, `created`.
 #'
 #' @examples
 #' \dontrun{
@@ -55,9 +55,9 @@ pl_get_logs <- function(conn, flow = NULL, status = NULL, from = NULL, to = NULL
     return(data.frame(
       id = character(0), flow = character(0), log_type = character(0),
       status = character(0), message = character(0), metadata = I(list()),
-      logged_by = character(0), source_file = character(0),
-      source_repo = character(0), created = character(0),
-      stringsAsFactors = FALSE
+      logged_by = character(0), logged_from = I(list()),
+      source_file = character(0), source_repo = character(0),
+      created = character(0), stringsAsFactors = FALSE
     ))
   }
 
@@ -71,6 +71,7 @@ pl_get_logs <- function(conn, flow = NULL, status = NULL, from = NULL, to = NULL
     message     = vapply(items, function(i) i$message %||% NA_character_, character(1)),
     metadata    = I(lapply(items, function(i) i$metadata)),
     logged_by   = vapply(items, function(i) i$logged_by %||% NA_character_, character(1)),
+    logged_from = I(lapply(items, function(i) i$logged_from)),
     source_file = vapply(items, function(i) i$source_file %||% NA_character_, character(1)),
     source_repo = vapply(items, function(i) i$source_repo %||% NA_character_, character(1)),
     created     = vapply(items, function(i) i$created %||% NA_character_, character(1)),

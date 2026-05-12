@@ -160,6 +160,25 @@ pl_get_system_user <- function() {
   NA_character_
 }
 
+pl_get_machine_info <- function() {
+  info <- Sys.info()
+  if (!is.null(info)) {
+    list(
+      machine  = unname(info[["nodename"]]),
+      os       = unname(info[["sysname"]]),
+      os_version = unname(info[["release"]]),
+      user     = unname(info[["user"]])
+    )
+  } else {
+    list(
+      machine    = NA_character_,
+      os         = .Platform$OS.type,
+      os_version = NA_character_,
+      user       = Sys.getenv("USER", unset = Sys.getenv("USERNAME", unset = NA_character_))
+    )
+  }
+}
+
 pl_get_source_file <- function() {
   for (i in seq_len(sys.nframe())) {
     srcref <- attr(sys.call(i), "srcref")

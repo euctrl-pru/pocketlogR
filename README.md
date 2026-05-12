@@ -344,6 +344,7 @@ Every log entry automatically captures who created it and where the code lives:
 | Field         | Auto-detection                                                      | Override with          |
 |---------------|---------------------------------------------------------------------|------------------------|
 | `logged_by`   | OS username via `Sys.info()` (Windows, macOS, Linux)                | `logged_by = "..."`    |
+| `logged_from` | Machine context (hostname, OS, version, user) via `Sys.info()`      | `logged_from = list(...)` |
 | `source_file` | R script filename from call stack (`source()`) or `Rscript --file`  | `source_file = "..."`  |
 | `source_repo` | Git repo name from `git remote get-url origin`                      | `source_repo = "..."`  |
 

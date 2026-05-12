@@ -81,6 +81,7 @@ Two collections, created by the admin via `pl_setup(conn_admin)`.
 | `message`     | text     | no       | Human-readable log message                                   |
 | `metadata`    | json     | no       | Arbitrary JSON (e.g. `{"rows": 1000, "duration_s": 12.5}`)   |
 | `logged_by`   | text     | no       | Username of who created the log. Auto-detected from OS if not provided. |
+| `logged_from` | json     | no       | Machine context: `{"machine": "...", "os": "...", "os_version": "...", "user": "..."}`. Auto-detected from `Sys.info()`. |
 | `source_file` | text     | no       | Filename of the R script that created the log. Auto-detected from call stack or `Rscript --file`. |
 | `source_repo` | text     | no       | Git repository name where the calling script lives. Auto-detected from git remote origin. |
 | `created`     | autodate | auto     | Managed by PocketBase                                        |
@@ -218,7 +219,7 @@ pl_get_dag(conn, since = NULL)
 
 ```r
 pl_log(conn, flow, status, log_type, message = NULL, metadata = NULL,
-       logged_by = NULL, source_file = NULL, source_repo = NULL)
+       logged_by = NULL, logged_from = NULL, source_file = NULL, source_repo = NULL)
 ```
 - `flow`: flow name (character). Resolved to PocketBase record ID internally.
 - `status`: one of `"SUCCESS"`, `"ERROR"`, `"FATAL"`. Validated before sending.
@@ -226,6 +227,7 @@ pl_log(conn, flow, status, log_type, message = NULL, metadata = NULL,
 - `message`: optional character string.
 - `metadata`: optional named list, serialized to JSON via `jsonlite::toJSON()`.
 - `logged_by`: optional username. If `NULL`, auto-detected from the OS (`Sys.info()["user"]` on all platforms, falling back to `USER`/`USERNAME` env vars).
+- `logged_from`: optional named list with machine context. If `NULL`, auto-detected via `Sys.info()`. Stored as JSON with keys `machine`, `os`, `os_version`, `user`.
 - `source_file`: optional filename. If `NULL`, auto-detected from the R call stack (`srcref` attributes from `source()`d files) or `Rscript --file` argument. `NA` in interactive sessions with no sourced file.
 - `source_repo`: optional git repo name. If `NULL`, auto-detected from `git remote get-url origin` in the current working directory. `NA` if not in a git repo.
 
@@ -233,16 +235,17 @@ Convenience wrappers (same additional parameters):
 
 ```r
 pl_success(conn, flow, log_type, message = NULL, metadata = NULL,
-           logged_by = NULL, source_file = NULL, source_repo = NULL)
+           logged_by = NULL, logged_from = NULL, source_file = NULL, source_repo = NULL)
 pl_error(conn, flow, log_type, message = NULL, metadata = NULL,
-         logged_by = NULL, source_file = NULL, source_repo = NULL)
+         logged_by = NULL, logged_from = NULL, source_file = NULL, source_repo = NULL)
 pl_fatal(conn, flow, log_type, message = NULL, metadata = NULL,
-         logged_by = NULL, source_file = NULL, source_repo = NULL)
+         logged_by = NULL, logged_from = NULL, source_file = NULL, source_repo = NULL)
 ```
 
 #### Auto-detection helpers (internal, not exported)
 
 - `pl_get_system_user()` — detects OS username via `Sys.info()["user"]`, falling back to `USER` (Unix/Mac) or `USERNAME` (Windows) env vars. Returns `NA_character_` if undetectable.
+- `pl_get_machine_info()` — returns a named list with `machine` (hostname), `os` (sysname), `os_version` (release), and `user` from `Sys.info()`. Falls back to `.Platform$OS.type` and env vars if `Sys.info()` is unavailable.
 - `pl_get_source_file()` — walks the R call stack looking for `srcref` attributes (set by `source()`). Falls back to `Rscript --file=` argument. Returns `NA_character_` in interactive sessions.
 - `pl_get_source_repo()` — runs `git remote get-url origin` and extracts the repo name (strips `.git` suffix). Returns `NA_character_` if not in a git repo or git is unavailable.
 

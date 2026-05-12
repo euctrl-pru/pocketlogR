@@ -79,20 +79,25 @@ test_that("pl_success calls pl_log with SUCCESS and passes through source params
 
   with_mocked_bindings(
     pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL,
-                      logged_by = NULL, source_file = NULL, source_repo = NULL) {
+                      logged_by = NULL, logged_from = NULL, source_file = NULL,
+                      source_repo = NULL) {
       captured$status      <<- status
       captured$log_type    <<- log_type
       captured$logged_by   <<- logged_by
+      captured$logged_from <<- logged_from
       captured$source_file <<- source_file
       captured$source_repo <<- source_repo
       invisible(NULL)
     },
     {
+      mock_machine <- list(machine = "TEST-PC", os = "Windows", user = "tester")
       pl_success(conn, "myflow", log_type = "data_job",
-                 logged_by = "tester", source_file = "run.R", source_repo = "myrepo")
+                 logged_by = "tester", logged_from = mock_machine,
+                 source_file = "run.R", source_repo = "myrepo")
       expect_equal(captured$status,      "SUCCESS")
       expect_equal(captured$log_type,    "data_job")
       expect_equal(captured$logged_by,   "tester")
+      expect_equal(captured$logged_from, mock_machine)
       expect_equal(captured$source_file, "run.R")
       expect_equal(captured$source_repo, "myrepo")
     }
@@ -105,10 +110,12 @@ test_that("pl_error calls pl_log with ERROR and passes through source params", {
 
   with_mocked_bindings(
     pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL,
-                      logged_by = NULL, source_file = NULL, source_repo = NULL) {
+                      logged_by = NULL, logged_from = NULL, source_file = NULL,
+                      source_repo = NULL) {
       captured$status      <<- status
       captured$log_type    <<- log_type
       captured$logged_by   <<- logged_by
+      captured$logged_from <<- logged_from
       captured$source_file <<- source_file
       captured$source_repo <<- source_repo
       invisible(NULL)
@@ -119,6 +126,7 @@ test_that("pl_error calls pl_log with ERROR and passes through source params", {
       expect_equal(captured$status,      "ERROR")
       expect_equal(captured$log_type,    "website_online")
       expect_equal(captured$logged_by,   "bot")
+      expect_null(captured$logged_from)
       expect_equal(captured$source_file, "check.R")
       expect_equal(captured$source_repo, "ops")
     }
@@ -131,10 +139,12 @@ test_that("pl_fatal calls pl_log with FATAL and passes through source params", {
 
   with_mocked_bindings(
     pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL,
-                      logged_by = NULL, source_file = NULL, source_repo = NULL) {
+                      logged_by = NULL, logged_from = NULL, source_file = NULL,
+                      source_repo = NULL) {
       captured$status      <<- status
       captured$log_type    <<- log_type
       captured$logged_by   <<- logged_by
+      captured$logged_from <<- logged_from
       captured$source_file <<- source_file
       captured$source_repo <<- source_repo
       invisible(NULL)
@@ -145,6 +155,7 @@ test_that("pl_fatal calls pl_log with FATAL and passes through source params", {
       expect_equal(captured$status,      "FATAL")
       expect_equal(captured$log_type,    "data_job")
       expect_equal(captured$logged_by,   "admin")
+      expect_null(captured$logged_from)
       expect_equal(captured$source_file, "etl.R")
       expect_equal(captured$source_repo, "pipeline")
     }
@@ -158,6 +169,14 @@ test_that("pl_log_types is a character vector with expected values", {
   expect_true("website_status" %in% pl_log_types)
   expect_true("email_check"    %in% pl_log_types)
   expect_true("db_check"       %in% pl_log_types)
+})
+
+test_that("pl_get_machine_info returns a list with expected keys", {
+  info <- pl_get_machine_info()
+  expect_type(info, "list")
+  expect_true(all(c("machine", "os", "os_version", "user") %in% names(info)))
+  expect_true(nchar(info$os) > 0)
+  expect_true(nchar(info$user) > 0)
 })
 
 test_that("pl_get_system_user returns a non-empty string", {

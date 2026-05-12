@@ -11,6 +11,7 @@ pl_error(
   message = NULL,
   metadata = NULL,
   logged_by = NULL,
+  logged_from = NULL,
   source_file = NULL,
   source_repo = NULL
 )
@@ -29,6 +30,10 @@ See \link{pl_log_types} for standard values, but any string is accepted.}
 
 \item{logged_by}{Optional username of who created this log. If \code{NULL}
 (default), auto-detected from the OS (works on Windows, macOS, and Linux).}
+
+\item{logged_from}{Optional named list with machine context (e.g.
+\code{list(machine = "...", os = "...", user = "...")}). If \code{NULL} (default),
+auto-detected via \code{Sys.info()}. Stored as JSON.}
 
 \item{source_file}{Optional filename of the script creating this log. If
 \code{NULL} (default), auto-detected from the R call stack or \code{Rscript --file}

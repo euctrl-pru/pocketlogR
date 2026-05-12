@@ -13,6 +13,9 @@
 #' @param metadata Optional named list, serialized to JSON.
 #' @param logged_by Optional username of who created this log. If `NULL`
 #'   (default), auto-detected from the OS (works on Windows, macOS, and Linux).
+#' @param logged_from Optional named list with machine context (e.g.
+#'   `list(machine = "...", os = "...", user = "...")`). If `NULL` (default),
+#'   auto-detected via `Sys.info()`. Stored as JSON.
 #' @param source_file Optional filename of the script creating this log. If
 #'   `NULL` (default), auto-detected from the R call stack or `Rscript --file`
 #'   argument. Returns `NA` in interactive sessions with no `source()`d file.
@@ -35,7 +38,8 @@
 #' }
 #' @export
 pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL,
-                   logged_by = NULL, source_file = NULL, source_repo = NULL) {
+                   logged_by = NULL, logged_from = NULL, source_file = NULL,
+                   source_repo = NULL) {
   pl_validate_conn(conn)
 
   if (!status %in% .valid_statuses) {
@@ -49,6 +53,7 @@ pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL
   }
 
   if (is.null(logged_by))   logged_by   <- pl_get_system_user()
+  if (is.null(logged_from)) logged_from <- pl_get_machine_info()
   if (is.null(source_file)) source_file <- pl_get_source_file()
   if (is.null(source_repo)) source_repo <- pl_get_source_repo()
 
@@ -67,6 +72,9 @@ pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL
       )
       if (!is.null(metadata)) {
         body$metadata <- jsonlite::toJSON(metadata, auto_unbox = TRUE)
+      }
+      if (!is.null(logged_from) && is.list(logged_from)) {
+        body$logged_from <- jsonlite::toJSON(logged_from, auto_unbox = TRUE)
       }
       body <- Filter(Negate(is.null), body)
 
@@ -109,10 +117,11 @@ pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL
 #' }
 #' @export
 pl_success <- function(conn, flow, log_type, message = NULL, metadata = NULL,
-                       logged_by = NULL, source_file = NULL, source_repo = NULL) {
+                       logged_by = NULL, logged_from = NULL, source_file = NULL,
+                       source_repo = NULL) {
   pl_log(conn, flow, "SUCCESS", log_type = log_type, message = message,
-         metadata = metadata, logged_by = logged_by, source_file = source_file,
-         source_repo = source_repo)
+         metadata = metadata, logged_by = logged_by, logged_from = logged_from,
+         source_file = source_file, source_repo = source_repo)
 }
 
 #' Log an ERROR event
@@ -131,10 +140,11 @@ pl_success <- function(conn, flow, log_type, message = NULL, metadata = NULL,
 #' }
 #' @export
 pl_error <- function(conn, flow, log_type, message = NULL, metadata = NULL,
-                     logged_by = NULL, source_file = NULL, source_repo = NULL) {
+                     logged_by = NULL, logged_from = NULL, source_file = NULL,
+                     source_repo = NULL) {
   pl_log(conn, flow, "ERROR", log_type = log_type, message = message,
-         metadata = metadata, logged_by = logged_by, source_file = source_file,
-         source_repo = source_repo)
+         metadata = metadata, logged_by = logged_by, logged_from = logged_from,
+         source_file = source_file, source_repo = source_repo)
 }
 
 #' Log a FATAL event
@@ -152,8 +162,9 @@ pl_error <- function(conn, flow, log_type, message = NULL, metadata = NULL,
 #' }
 #' @export
 pl_fatal <- function(conn, flow, log_type, message = NULL, metadata = NULL,
-                     logged_by = NULL, source_file = NULL, source_repo = NULL) {
+                     logged_by = NULL, logged_from = NULL, source_file = NULL,
+                     source_repo = NULL) {
   pl_log(conn, flow, "FATAL", log_type = log_type, message = message,
-         metadata = metadata, logged_by = logged_by, source_file = source_file,
-         source_repo = source_repo)
+         metadata = metadata, logged_by = logged_by, logged_from = logged_from,
+         source_file = source_file, source_repo = source_repo)
 }

@@ -52,5 +52,6 @@ test_that("pl_get_logs returns empty data.frame with correct columns when no res
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), 0)
   expect_true(all(c("id", "flow", "status", "message", "metadata",
-                    "logged_by", "source_file", "source_repo", "created") %in% names(result)))
+                    "logged_by", "logged_from", "source_file", "source_repo",
+                    "created") %in% names(result)))
 })
