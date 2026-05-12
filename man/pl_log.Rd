@@ -4,7 +4,17 @@
 \alias{pl_log}
 \title{Log an event for a flow}
 \usage{
-pl_log(conn, flow, status, log_type, message = NULL, metadata = NULL)
+pl_log(
+  conn,
+  flow,
+  status,
+  log_type,
+  message = NULL,
+  metadata = NULL,
+  logged_by = NULL,
+  source_file = NULL,
+  source_repo = NULL
+)
 }
 \arguments{
 \item{conn}{A connection object from \code{\link[=pl_connect]{pl_connect()}}.}
@@ -19,6 +29,17 @@ See \link{pl_log_types} for standard values, but any string is accepted.}
 \item{message}{Optional human-readable log message.}
 
 \item{metadata}{Optional named list, serialized to JSON.}
+
+\item{logged_by}{Optional username of who created this log. If \code{NULL}
+(default), auto-detected from the OS (works on Windows, macOS, and Linux).}
+
+\item{source_file}{Optional filename of the script creating this log. If
+\code{NULL} (default), auto-detected from the R call stack or \code{Rscript --file}
+argument. Returns \code{NA} in interactive sessions with no \code{source()}d file.}
+
+\item{source_repo}{Optional git repository name where the calling script
+lives. If \code{NULL} (default), auto-detected from the \code{origin} remote of the
+current working directory's git repo.}
 }
 \value{
 Invisibly returns the created log record, or \code{NULL} on failure.
@@ -34,5 +55,9 @@ conn <- pl_connect()
 pl_log(conn, "ectrl_data_load", "SUCCESS", log_type = "data_job",
        message = "Loaded 14230 rows",
        metadata = list(rows = 14230, duration_s = 45.2))
+
+# Override auto-detected user
+pl_log(conn, "ectrl_data_load", "SUCCESS", log_type = "data_job",
+       logged_by = "scheduled-task")
 }
 }

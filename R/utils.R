@@ -149,6 +149,47 @@ pl_detect_cycle <- function(target_name, proposed_upstream_names, all_flows_raw)
   FALSE
 }
 
+pl_get_system_user <- function() {
+  info <- Sys.info()
+  if (!is.null(info)) {
+    user <- info[["user"]]
+    if (nchar(user) > 0) return(user)
+  }
+  user <- Sys.getenv("USER", unset = Sys.getenv("USERNAME", unset = ""))
+  if (nchar(user) > 0) return(user)
+  NA_character_
+}
+
+pl_get_source_file <- function() {
+  for (i in seq_len(sys.nframe())) {
+    srcref <- attr(sys.call(i), "srcref")
+    if (!is.null(srcref)) {
+      srcfile <- attr(srcref, "srcfile")
+      if (!is.null(srcfile) && !is.null(srcfile$filename) && nchar(srcfile$filename) > 0) {
+        return(basename(srcfile$filename))
+      }
+    }
+  }
+  args <- commandArgs(trailingOnly = FALSE)
+  file_arg <- grep("^--file=", args, value = TRUE)
+  if (length(file_arg) > 0) {
+    return(basename(sub("^--file=", "", file_arg[1])))
+  }
+  NA_character_
+}
+
+pl_get_source_repo <- function() {
+  tryCatch({
+    url <- system2("git", c("remote", "get-url", "origin"),
+                   stdout = TRUE, stderr = FALSE)
+    if (length(url) > 0 && nchar(url[1]) > 0) {
+      sub("\\.git$", "", basename(url[1]))
+    } else {
+      NA_character_
+    }
+  }, error = function(e) NA_character_, warning = function(e) NA_character_)
+}
+
 pl_retry <- function(expr, times = 3, wait = 2) {
   expr_sub <- substitute(expr)
   caller_env <- parent.frame()

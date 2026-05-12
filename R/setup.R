@@ -136,11 +136,14 @@ pl_setup <- function(conn) {
         collectionId  = flows_col_id,
         cascadeDelete = FALSE
       ),
-      list(name = "log_type", type = "text",     required = TRUE),
-      list(name = "status",   type = "text",     required = TRUE),
-      list(name = "message",  type = "text",     required = FALSE),
-      list(name = "metadata", type = "json",     required = FALSE),
-      list(name = "created",  type = "autodate", onCreate = TRUE, onUpdate = FALSE)
+      list(name = "log_type",    type = "text",     required = TRUE),
+      list(name = "status",      type = "text",     required = TRUE),
+      list(name = "message",     type = "text",     required = FALSE),
+      list(name = "metadata",    type = "json",     required = FALSE),
+      list(name = "logged_by",   type = "text",     required = FALSE),
+      list(name = "source_file", type = "text",     required = FALSE),
+      list(name = "source_repo", type = "text",     required = FALSE),
+      list(name = "created",     type = "autodate", onCreate = TRUE, onUpdate = FALSE)
     ),
     listRule   = "@request.auth.id != \"\"",
     viewRule   = "@request.auth.id != \"\"",

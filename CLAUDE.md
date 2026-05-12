@@ -74,13 +74,16 @@ Two collections, created by the admin via `pl_setup(conn_admin)`.
 
 ### `pl_logs` (log entries)
 
-| Field      | Type     | Required | Notes                                                        |
-| ---------- | -------- | -------- | ------------------------------------------------------------ |
-| `flow`     | relation | yes      | Relation to `pl_flows` collection (flow ID)                  |
-| `status`   | text     | yes      | One of: `SUCCESS`, `ERROR`, `FATAL`                          |
-| `message`  | text     | no       | Human-readable log message                                   |
-| `metadata` | json     | no       | Arbitrary JSON (e.g. `{"rows": 1000, "duration_s": 12.5}`)   |
-| `created`  | autodate | auto     | Managed by PocketBase                                        |
+| Field         | Type     | Required | Notes                                                        |
+| ------------- | -------- | -------- | ------------------------------------------------------------ |
+| `flow`        | relation | yes      | Relation to `pl_flows` collection (flow ID)                  |
+| `status`      | text     | yes      | One of: `SUCCESS`, `ERROR`, `FATAL`                          |
+| `message`     | text     | no       | Human-readable log message                                   |
+| `metadata`    | json     | no       | Arbitrary JSON (e.g. `{"rows": 1000, "duration_s": 12.5}`)   |
+| `logged_by`   | text     | no       | Username of who created the log. Auto-detected from OS if not provided. |
+| `source_file` | text     | no       | Filename of the R script that created the log. Auto-detected from call stack or `Rscript --file`. |
+| `source_repo` | text     | no       | Git repository name where the calling script lives. Auto-detected from git remote origin. |
+| `created`     | autodate | auto     | Managed by PocketBase                                        |
 
 **API rules** (set by `pl_setup()`):
 - listRule: `@request.auth.id != ""`
@@ -214,20 +217,34 @@ pl_get_dag(conn, since = NULL)
 ### Logging
 
 ```r
-pl_log(conn, flow, status, message = NULL, metadata = NULL)
+pl_log(conn, flow, status, log_type, message = NULL, metadata = NULL,
+       logged_by = NULL, source_file = NULL, source_repo = NULL)
 ```
 - `flow`: flow name (character). Resolved to PocketBase record ID internally.
 - `status`: one of `"SUCCESS"`, `"ERROR"`, `"FATAL"`. Validated before sending.
+- `log_type`: free-text log type (e.g. `"data_job"`). Required.
 - `message`: optional character string.
 - `metadata`: optional named list, serialized to JSON via `jsonlite::toJSON()`.
+- `logged_by`: optional username. If `NULL`, auto-detected from the OS (`Sys.info()["user"]` on all platforms, falling back to `USER`/`USERNAME` env vars).
+- `source_file`: optional filename. If `NULL`, auto-detected from the R call stack (`srcref` attributes from `source()`d files) or `Rscript --file` argument. `NA` in interactive sessions with no sourced file.
+- `source_repo`: optional git repo name. If `NULL`, auto-detected from `git remote get-url origin` in the current working directory. `NA` if not in a git repo.
 
-Convenience wrappers:
+Convenience wrappers (same additional parameters):
 
 ```r
-pl_success(conn, flow, message = NULL, metadata = NULL)
-pl_error(conn, flow, message = NULL, metadata = NULL)
-pl_fatal(conn, flow, message = NULL, metadata = NULL)
+pl_success(conn, flow, log_type, message = NULL, metadata = NULL,
+           logged_by = NULL, source_file = NULL, source_repo = NULL)
+pl_error(conn, flow, log_type, message = NULL, metadata = NULL,
+         logged_by = NULL, source_file = NULL, source_repo = NULL)
+pl_fatal(conn, flow, log_type, message = NULL, metadata = NULL,
+         logged_by = NULL, source_file = NULL, source_repo = NULL)
 ```
+
+#### Auto-detection helpers (internal, not exported)
+
+- `pl_get_system_user()` — detects OS username via `Sys.info()["user"]`, falling back to `USER` (Unix/Mac) or `USERNAME` (Windows) env vars. Returns `NA_character_` if undetectable.
+- `pl_get_source_file()` — walks the R call stack looking for `srcref` attributes (set by `source()`). Falls back to `Rscript --file=` argument. Returns `NA_character_` in interactive sessions.
+- `pl_get_source_repo()` — runs `git remote get-url origin` and extracts the repo name (strips `.git` suffix). Returns `NA_character_` if not in a git repo or git is unavailable.
 
 ### Querying
 
@@ -296,7 +313,7 @@ pocketlogR/
 │   ├── log.R            # pl_log(), pl_success(), pl_error(), pl_fatal()
 │   ├── query.R          # pl_get_logs()
 │   ├── admin.R          # pl_delete_flow(), pl_delete_logs()
-│   └── utils.R          # internal helpers: auth, retry, filter building, flow name resolution, cycle detection, pl_flow_types
+│   └── utils.R          # internal helpers: auth, retry, filter building, flow name resolution, cycle detection, pl_flow_types, source auto-detection (pl_get_system_user, pl_get_source_file, pl_get_source_repo)
 ├── man/                 # auto-generated by roxygen2
 ├── _pkgdown.yml         # pkgdown site configuration
 ├── .github/

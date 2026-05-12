@@ -73,56 +73,80 @@ test_that("pl_retry stops early on success", {
   expect_equal(result, "done")
 })
 
-test_that("pl_success calls pl_log with SUCCESS", {
+test_that("pl_success calls pl_log with SUCCESS and passes through source params", {
   conn <- list(url = "https://x.io", token = "tok")
   captured <- list()
 
   with_mocked_bindings(
-    pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL) {
-      captured$status   <<- status
-      captured$log_type <<- log_type
+    pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL,
+                      logged_by = NULL, source_file = NULL, source_repo = NULL) {
+      captured$status      <<- status
+      captured$log_type    <<- log_type
+      captured$logged_by   <<- logged_by
+      captured$source_file <<- source_file
+      captured$source_repo <<- source_repo
       invisible(NULL)
     },
     {
-      pl_success(conn, "myflow", log_type = "data_job")
-      expect_equal(captured$status,   "SUCCESS")
-      expect_equal(captured$log_type, "data_job")
+      pl_success(conn, "myflow", log_type = "data_job",
+                 logged_by = "tester", source_file = "run.R", source_repo = "myrepo")
+      expect_equal(captured$status,      "SUCCESS")
+      expect_equal(captured$log_type,    "data_job")
+      expect_equal(captured$logged_by,   "tester")
+      expect_equal(captured$source_file, "run.R")
+      expect_equal(captured$source_repo, "myrepo")
     }
   )
 })
 
-test_that("pl_error calls pl_log with ERROR", {
+test_that("pl_error calls pl_log with ERROR and passes through source params", {
   conn <- list(url = "https://x.io", token = "tok")
   captured <- list()
 
   with_mocked_bindings(
-    pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL) {
-      captured$status   <<- status
-      captured$log_type <<- log_type
+    pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL,
+                      logged_by = NULL, source_file = NULL, source_repo = NULL) {
+      captured$status      <<- status
+      captured$log_type    <<- log_type
+      captured$logged_by   <<- logged_by
+      captured$source_file <<- source_file
+      captured$source_repo <<- source_repo
       invisible(NULL)
     },
     {
-      pl_error(conn, "myflow", log_type = "website_online")
-      expect_equal(captured$status,   "ERROR")
-      expect_equal(captured$log_type, "website_online")
+      pl_error(conn, "myflow", log_type = "website_online",
+               logged_by = "bot", source_file = "check.R", source_repo = "ops")
+      expect_equal(captured$status,      "ERROR")
+      expect_equal(captured$log_type,    "website_online")
+      expect_equal(captured$logged_by,   "bot")
+      expect_equal(captured$source_file, "check.R")
+      expect_equal(captured$source_repo, "ops")
     }
   )
 })
 
-test_that("pl_fatal calls pl_log with FATAL", {
+test_that("pl_fatal calls pl_log with FATAL and passes through source params", {
   conn <- list(url = "https://x.io", token = "tok")
   captured <- list()
 
   with_mocked_bindings(
-    pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL) {
-      captured$status   <<- status
-      captured$log_type <<- log_type
+    pl_log = function(conn, flow, status, log_type, message = NULL, metadata = NULL,
+                      logged_by = NULL, source_file = NULL, source_repo = NULL) {
+      captured$status      <<- status
+      captured$log_type    <<- log_type
+      captured$logged_by   <<- logged_by
+      captured$source_file <<- source_file
+      captured$source_repo <<- source_repo
       invisible(NULL)
     },
     {
-      pl_fatal(conn, "myflow", log_type = "data_job")
-      expect_equal(captured$status,   "FATAL")
-      expect_equal(captured$log_type, "data_job")
+      pl_fatal(conn, "myflow", log_type = "data_job",
+               logged_by = "admin", source_file = "etl.R", source_repo = "pipeline")
+      expect_equal(captured$status,      "FATAL")
+      expect_equal(captured$log_type,    "data_job")
+      expect_equal(captured$logged_by,   "admin")
+      expect_equal(captured$source_file, "etl.R")
+      expect_equal(captured$source_repo, "pipeline")
     }
   )
 })
@@ -134,4 +158,33 @@ test_that("pl_log_types is a character vector with expected values", {
   expect_true("website_status" %in% pl_log_types)
   expect_true("email_check"    %in% pl_log_types)
   expect_true("db_check"       %in% pl_log_types)
+})
+
+test_that("pl_get_system_user returns a non-empty string", {
+  user <- pl_get_system_user()
+  expect_type(user, "character")
+  expect_equal(length(user), 1)
+  expect_true(nchar(user) > 0)
+  expect_false(is.na(user))
+})
+
+test_that("pl_get_source_file returns character(1)", {
+  result <- pl_get_source_file()
+  expect_type(result, "character")
+  expect_equal(length(result), 1)
+})
+
+test_that("pl_get_source_repo returns character(1)", {
+  result <- pl_get_source_repo()
+  expect_type(result, "character")
+  expect_equal(length(result), 1)
+})
+
+test_that("pl_get_source_repo returns repo name in a git repo", {
+  skip_if_not(dir.exists(".git") || dir.exists("../.git") || dir.exists("../../.git"),
+              "Not inside a git repository")
+  result <- pl_get_source_repo()
+  expect_false(is.na(result))
+  expect_true(nchar(result) > 0)
+  expect_false(grepl("\\.git$", result))
 })

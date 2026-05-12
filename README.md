@@ -46,9 +46,21 @@ The R package authenticates as a regular PocketBase user, not as the superuser. 
 
 Install the package (see [Installation](#installation)) and run `pl_setup()` with your superuser credentials. This creates the `pl_flows` and `pl_logs` collections with the correct schema and API rules.
 
+`pl_connect_admin()` reads from environment variables by default, or you can pass credentials directly:
+
+| Variable                  | Description              | Example                             |
+|---------------------------|--------------------------|-------------------------------------|
+| `POCKETLOG_URL`           | PocketBase instance URL  | `https://myapp.pockethost.io`       |
+| `POCKETLOG_ADMIN_EMAIL`   | Superuser email          | `admin@yourorg.com`                 |
+| `POCKETLOG_ADMIN_PASSWORD`| Superuser password       | `your-superuser-password`           |
+
 ```r
 library(pocketlogR)
 
+# Option 1: reads POCKETLOG_URL, POCKETLOG_ADMIN_EMAIL, POCKETLOG_ADMIN_PASSWORD from env
+conn_admin <- pl_connect_admin()
+
+# Option 2: pass credentials directly
 conn_admin <- pl_connect_admin(
   url      = "https://myapp.pockethost.io",
   email    = "admin@yourorg.com",
@@ -182,6 +194,7 @@ pl_create_flow(conn, "ans_monthly_update", type = "website_status",
                depends_on = c("ans_data_freshness", "ans_website_online"))
 
 # Log outcomes from your scripts (log_type is required)
+# logged_by, source_file, and source_repo are auto-detected if omitted
 pl_success(conn, "ectrl_data_load",
            log_type = "data_job",
            message  = "Loaded 14,230 rows",
@@ -191,6 +204,14 @@ pl_error(conn, "ans_website_online",
          log_type = "website_online",
          message  = "HTTP 503 returned",
          metadata = list(http_status = 503, response_time_ms = 12040))
+
+# Override auto-detected source info when needed
+pl_success(conn, "ectrl_data_load",
+           log_type    = "data_job",
+           message     = "Manual re-run",
+           logged_by   = "ops-team",
+           source_file = "manual_rerun.R",
+           source_repo = "etl-scripts")
 
 # Check the full dependency chain for a downstream flow
 pl_get_status(conn, "ans_monthly_update")
@@ -268,7 +289,7 @@ Dependencies are purely informational — logging is never blocked by upstream s
 | `pl_get_dependencies()`   | List direct or transitive upstream dependencies                     |
 | `pl_get_status()`         | Full dependency chain health for a single flow                      |
 | `pl_get_dag()`            | Full DAG overview with raw and cascade-aware effective status        |
-| `pl_log()`                | Log an event (`SUCCESS`, `ERROR`, or `FATAL`) with a required `log_type` |
+| `pl_log()`                | Log an event with auto-detected `logged_by`, `source_file`, `source_repo` |
 | `pl_success()`            | Shorthand for `pl_log(..., status = "SUCCESS")`                     |
 | `pl_error()`              | Shorthand for `pl_log(..., status = "ERROR")`                       |
 | `pl_fatal()`              | Shorthand for `pl_log(..., status = "FATAL")`                       |
@@ -314,6 +335,28 @@ Every log entry carries a `log_type` — a required field describing what kind o
 ```r
 pl_success(conn, "my_flow", log_type = "data_job", message = "Done")
 pl_error(conn,   "my_flow", log_type = "website_online", message = "Timeout")
+```
+
+## Source Tracking
+
+Every log entry automatically captures who created it and where the code lives:
+
+| Field         | Auto-detection                                                      | Override with          |
+|---------------|---------------------------------------------------------------------|------------------------|
+| `logged_by`   | OS username via `Sys.info()` (Windows, macOS, Linux)                | `logged_by = "..."`    |
+| `source_file` | R script filename from call stack (`source()`) or `Rscript --file`  | `source_file = "..."`  |
+| `source_repo` | Git repo name from `git remote get-url origin`                      | `source_repo = "..."`  |
+
+All three are optional — if auto-detection fails (e.g. interactive session, no git repo), the field is simply omitted from the log record.
+
+```r
+# Auto-detected (most common usage)
+pl_success(conn, "ectrl_data_load", log_type = "data_job", message = "Done")
+
+# Explicit override
+pl_success(conn, "ectrl_data_load", log_type = "data_job",
+           logged_by = "scheduled-task", source_file = "etl.R",
+           source_repo = "data-pipeline")
 ```
 
 ---

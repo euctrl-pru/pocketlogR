@@ -28,7 +28,8 @@ pl_get_logs(
 }
 \value{
 A data.frame with columns: \code{id}, \code{flow} (flow name), \code{log_type},
-\code{status}, \code{message}, \code{metadata}, \code{created}.
+\code{status}, \code{message}, \code{metadata}, \code{logged_by}, \code{source_file},
+\code{source_repo}, \code{created}.
 }
 \description{
 Returns a data.frame of log entries, optionally filtered. All filter

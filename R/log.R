@@ -11,6 +11,14 @@
 #'   See [pl_log_types] for standard values, but any string is accepted.
 #' @param message Optional human-readable log message.
 #' @param metadata Optional named list, serialized to JSON.
+#' @param logged_by Optional username of who created this log. If `NULL`
+#'   (default), auto-detected from the OS (works on Windows, macOS, and Linux).
+#' @param source_file Optional filename of the script creating this log. If
+#'   `NULL` (default), auto-detected from the R call stack or `Rscript --file`
+#'   argument. Returns `NA` in interactive sessions with no `source()`d file.
+#' @param source_repo Optional git repository name where the calling script
+#'   lives. If `NULL` (default), auto-detected from the `origin` remote of the
+#'   current working directory's git repo.
 #'
 #' @return Invisibly returns the created log record, or `NULL` on failure.
 #'
@@ -20,9 +28,14 @@
 #' pl_log(conn, "ectrl_data_load", "SUCCESS", log_type = "data_job",
 #'        message = "Loaded 14230 rows",
 #'        metadata = list(rows = 14230, duration_s = 45.2))
+#'
+#' # Override auto-detected user
+#' pl_log(conn, "ectrl_data_load", "SUCCESS", log_type = "data_job",
+#'        logged_by = "scheduled-task")
 #' }
 #' @export
-pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL) {
+pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL,
+                   logged_by = NULL, source_file = NULL, source_repo = NULL) {
   pl_validate_conn(conn)
 
   if (!status %in% .valid_statuses) {
@@ -35,15 +48,22 @@ pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL
     stop("'log_type' must be a non-empty character string.")
   }
 
+  if (is.null(logged_by))   logged_by   <- pl_get_system_user()
+  if (is.null(source_file)) source_file <- pl_get_source_file()
+  if (is.null(source_repo)) source_repo <- pl_get_source_repo()
+
   result <- pl_retry(
     {
       flow_id <- pl_resolve_flow_id(conn, flow)
 
       body <- list(
-        flow     = flow_id,
-        log_type = log_type,
-        status   = status,
-        message  = message
+        flow        = flow_id,
+        log_type    = log_type,
+        status      = status,
+        message     = message,
+        logged_by   = if (!is.na(logged_by))   logged_by   else NULL,
+        source_file = if (!is.na(source_file)) source_file else NULL,
+        source_repo = if (!is.na(source_repo)) source_repo else NULL
       )
       if (!is.null(metadata)) {
         body$metadata <- jsonlite::toJSON(metadata, auto_unbox = TRUE)
@@ -77,12 +97,7 @@ pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL
 #'
 #' Convenience wrapper around [pl_log()] for successful outcomes.
 #'
-#' @param conn A connection object from [pl_connect()].
-#' @param flow Flow name (character).
-#' @param log_type Free-text log type (e.g. `"data_job"`, `"website_online"`).
-#'   See [pl_log_types] for standard values, but any string is accepted.
-#' @param message Optional human-readable log message.
-#' @param metadata Optional named list, serialized to JSON.
+#' @inheritParams pl_log
 #'
 #' @return Invisibly returns the created log record, or `NULL` on failure.
 #'
@@ -93,20 +108,18 @@ pl_log <- function(conn, flow, status, log_type, message = NULL, metadata = NULL
 #'            metadata = list(rows = 14230))
 #' }
 #' @export
-pl_success <- function(conn, flow, log_type, message = NULL, metadata = NULL) {
-  pl_log(conn, flow, "SUCCESS", log_type = log_type, message = message, metadata = metadata)
+pl_success <- function(conn, flow, log_type, message = NULL, metadata = NULL,
+                       logged_by = NULL, source_file = NULL, source_repo = NULL) {
+  pl_log(conn, flow, "SUCCESS", log_type = log_type, message = message,
+         metadata = metadata, logged_by = logged_by, source_file = source_file,
+         source_repo = source_repo)
 }
 
 #' Log an ERROR event
 #'
 #' Convenience wrapper around [pl_log()] for recoverable errors.
 #'
-#' @param conn A connection object from [pl_connect()].
-#' @param flow Flow name (character).
-#' @param log_type Free-text log type (e.g. `"data_job"`, `"website_online"`).
-#'   See [pl_log_types] for standard values, but any string is accepted.
-#' @param message Optional human-readable log message.
-#' @param metadata Optional named list, serialized to JSON.
+#' @inheritParams pl_log
 #'
 #' @return Invisibly returns the created log record, or `NULL` on failure.
 #'
@@ -117,20 +130,18 @@ pl_success <- function(conn, flow, log_type, message = NULL, metadata = NULL) {
 #'          metadata = list(http_status = 503))
 #' }
 #' @export
-pl_error <- function(conn, flow, log_type, message = NULL, metadata = NULL) {
-  pl_log(conn, flow, "ERROR", log_type = log_type, message = message, metadata = metadata)
+pl_error <- function(conn, flow, log_type, message = NULL, metadata = NULL,
+                     logged_by = NULL, source_file = NULL, source_repo = NULL) {
+  pl_log(conn, flow, "ERROR", log_type = log_type, message = message,
+         metadata = metadata, logged_by = logged_by, source_file = source_file,
+         source_repo = source_repo)
 }
 
 #' Log a FATAL event
 #'
 #' Convenience wrapper around [pl_log()] for unrecoverable failures.
 #'
-#' @param conn A connection object from [pl_connect()].
-#' @param flow Flow name (character).
-#' @param log_type Free-text log type (e.g. `"data_job"`, `"website_online"`).
-#'   See [pl_log_types] for standard values, but any string is accepted.
-#' @param message Optional human-readable log message.
-#' @param metadata Optional named list, serialized to JSON.
+#' @inheritParams pl_log
 #'
 #' @return Invisibly returns the created log record, or `NULL` on failure.
 #'
@@ -140,6 +151,9 @@ pl_error <- function(conn, flow, log_type, message = NULL, metadata = NULL) {
 #'          message = "Unrecoverable database error")
 #' }
 #' @export
-pl_fatal <- function(conn, flow, log_type, message = NULL, metadata = NULL) {
-  pl_log(conn, flow, "FATAL", log_type = log_type, message = message, metadata = metadata)
+pl_fatal <- function(conn, flow, log_type, message = NULL, metadata = NULL,
+                     logged_by = NULL, source_file = NULL, source_repo = NULL) {
+  pl_log(conn, flow, "FATAL", log_type = log_type, message = message,
+         metadata = metadata, logged_by = logged_by, source_file = source_file,
+         source_repo = source_repo)
 }

@@ -126,6 +126,27 @@ test_that("pl_success logs a SUCCESS entry and pl_get_logs retrieves it", {
   expect_equal(logs$log_type[[1]], "data_job")
   expect_equal(logs$status[[1]],  "SUCCESS")
   expect_equal(logs$message[[1]], "all good")
+  expect_true("logged_by"   %in% names(logs))
+  expect_true("source_file" %in% names(logs))
+  expect_true("source_repo" %in% names(logs))
+})
+
+test_that("pl_log stores explicit logged_by, source_file, source_repo", {
+  conn_admin <- live_admin_conn()
+  conn       <- live_conn()
+  nm <- paste0("inttest_src_", format(Sys.time(), "%H%M%S"))
+  on.exit(delete_flow(conn_admin, conn, nm), add = TRUE)
+
+  pl_create_flow(conn, nm, type = "data_job", owner = "test-owner")
+  pl_success(conn, nm, log_type = "data_job", message = "with source info",
+             logged_by = "test-user", source_file = "my_script.R",
+             source_repo = "my-repo")
+
+  logs <- pl_get_logs(conn, flow = nm)
+  expect_equal(nrow(logs), 1)
+  expect_equal(logs$logged_by[[1]],   "test-user")
+  expect_equal(logs$source_file[[1]], "my_script.R")
+  expect_equal(logs$source_repo[[1]], "my-repo")
 })
 
 test_that("pl_error and pl_fatal log correct statuses", {

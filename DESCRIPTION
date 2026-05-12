@@ -11,7 +11,6 @@ Description: A unified operational monitoring system that logs application event
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Imports:
     httr2,
     jsonlite,
@@ -21,3 +20,4 @@ Suggests:
 Config/testthat/edition: 3
 URL: https://github.com/euctrl-pru/pocketlogR
 BugReports: https://github.com/euctrl-pru/pocketlogR/issues
+Config/roxygen2/version: 8.0.0
